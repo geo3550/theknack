@@ -11,7 +11,7 @@ import os, time
 # first column.
 # If export_header == 'all fields', it will export the entire DB.
 export_header = [
-                    'Name: First', 'Name: Last', 'Email', 'Employer Unique Name',
+                    'Name: First', 'Name: Last', 'Secondary Email', 'Employer Unique Name',
                     'Enrolled Department', 'Degree'
                 ]
 # export_header = 'all fields'
@@ -41,7 +41,7 @@ def data_processor(data):
         if not tracker%10:
             print "\tnumremaining: %d" % tracker
         # Don't do anything if person has uniqname already
-        if newdata[umid]['Employer Unique Name']:
+        if newdata[umid]['Employer Unique Name'] and newdata[umid]['Secondary Email']:
             # Don't forget to add the new columns
             newdata[umid]['Enrolled Department'] = ''
             newdata[umid]['Degree'] = ''
@@ -56,7 +56,7 @@ def data_processor(data):
                 try:
                     uniq = person['uniqname']
                     newdata[umid]['Employer Unique Name'] = uniq
-                    newdata[umid]['Email'] = uniq+"@umich.edu"
+                    newdata[umid]['Secondary Email'] = uniq+"@umich.edu"
                 except KeyError:
                     errors.append( (query, 'No Uniqname: '+query) )
                     print(errors[-1][1])
