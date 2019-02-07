@@ -1,0 +1,38 @@
+#######################################################################
+# Anything in the data folder is assumed to have private information! #
+# ** do not commit **                                                 #
+#######################################################################
+/data
+/results
+config.py
+
+
+# Compiled Python #
+###################
+*.pyc
+/*.egg-info
+
+
+# Python virtualenv #
+#####################
+/pyenv
+
+
+# Editor backup files #
+#######################
+*~
+
+
+# Sublime Project Files #
+#########################
+*.sublime-project
+*.sublime-workspace
+
+
+# OS generated files #
+######################
+.DS_Store?
+ehthumbs.db
+Icon?
+>>>>>>> 9b722afbe2f1598dd89119fb3fb2f4e4d98cbf58
+Thumbs.db
