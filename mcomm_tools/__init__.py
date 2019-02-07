@@ -60,7 +60,7 @@ class Scraper(object):
 
         # Need to sanitize the query b/c it gets put
         # straight into a url
-        clean_query = urllib.quote(query)
+        clean_query = urllib.quote(query.encode('utf8'))
         r = requests.get(self.url+clean_query, headers=header)
         try: return r.json()
         except: return False

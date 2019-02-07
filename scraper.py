@@ -1,6 +1,7 @@
 #!/bin/python2
 
 import knack_tools as kt
+import mcomm_tools as mcomm
 import requests
 import os, time
 
@@ -39,6 +40,13 @@ def data_processor(data):
     for umid in ids:
         if not tracker%10:
             print "\tnumremaining: %d" % tracker
+        # Don't do anything if person has uniqname already
+        if newdata[umid]['Employer Unique Name']:
+            # Don't forget to add the new columns
+            newdata[umid]['Enrolled Department'] = ''
+            newdata[umid]['Degree'] = ''
+            tracker -= 1
+            continue
         query = data[umid]['Name: First']+" "+data[umid]['Name: Last']
         result = mc.querydb(query)
         if result:
@@ -73,19 +81,22 @@ def data_processor(data):
             errors.append( (query, "Query Failed: "+query) )
             print(errors[-1][1])
         tracker -= 1
-        time.sleep(.1)
+        time.sleep(.01)
 
     kt.writecsv_summary(errors, OUTPATH+'scraper_errors.csv')
 
     return newdata
 
 
+
+
+
 # Create M-Community Object
-mc = kt.Scraper()
+mc = mcomm.Scraper()
 
 # Create & run GUI (must be @ end of file)
 # gui = kt.GuiIO(data_processor, export_header, OUTPATH+'scraper_out.csv')
-gui = kt.AutomaticIO(INPATH+'all_nonactives-11-7-18.csv', data_processor, 
+gui = kt.AutomaticIO(INPATH+'all_actives-2-6-19.csv', data_processor, 
                         export_header, OUTPATH+'scraper_out.csv')
 gui.master.title("GEO Scrape-o-Matic")
 gui.mainloop()  
