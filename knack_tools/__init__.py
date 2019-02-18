@@ -94,8 +94,8 @@ def parsebyid(lines):
 
     # Remove '3550' prefix from everything
     for idx, line in enumerate(lines[1:]):
-        lines[idx] = [remove_prefix(elt,'3550.') for elt in line]
-
+        lines[idx+1] = [remove_prefix(elt,'3550.') for elt in line]
+    
     # Create dictionary for each person
     keys = header
     del keys[id_index]

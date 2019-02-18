@@ -29,6 +29,11 @@ def data_processor(data):
     The function is meant to be passed to the importer (in this case GuiIO).
     The importer will call this function after it has parsed the raw data.
     """
+    global data_
+    global newdata
+    global person
+    global query
+    data_ = data
     newdata = data
     numremaining = len(data)
     errors = []
@@ -41,10 +46,11 @@ def data_processor(data):
         if not tracker%10:
             print "\tnumremaining: %d" % tracker
         # Don't do anything if person has uniqname already
-        if newdata[umid]['Employer Unique Name'] and newdata[umid]['Secondary Email']:
+        if newdata[umid]['Employer Unique Name'] and newdata[umid]['Secondary Email'] and \
+           newdata[umid]['Secondary Department']  and newdata[umid]['Education']:
             # Don't forget to add the new columns
-            newdata[umid]['Enrolled Department'] = ''
-            newdata[umid]['Degree'] = ''
+            newdata[umid]['Enrolled Department'] = newdata[umid]['Secondary Department']
+            newdata[umid]['Degree'] = newdata[umid]['Education']
             tracker -= 1
             continue
         query = data[umid]['Name: First']+" "+data[umid]['Name: Last']
@@ -96,7 +102,8 @@ mc = mcomm.Scraper()
 
 # Create & run GUI (must be @ end of file)
 # gui = kt.GuiIO(data_processor, export_header, OUTPATH+'scraper_out.csv')
-gui = kt.AutomaticIO(INPATH+'all_actives-2-6-19.csv', data_processor, 
+# gui = kt.AutomaticIO(INPATH+'all_fields-1.csv', data_processor, 
+gui = kt.AutomaticIO(INPATH+'all_actives-2-18-19.csv', data_processor, 
                         export_header, OUTPATH+'scraper_out.csv')
 gui.master.title("GEO Scrape-o-Matic")
 gui.mainloop()  
