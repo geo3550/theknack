@@ -21,29 +21,23 @@ class Window(Frame):
         # self.grid(column=0,row=0)
         self.master.grid()
         self.master.columnconfigure(0,weight=1)
-
-        frame1 = Frame(self.master,bg="blue")
-        # frame1.pack(fill=X)
-        frame1.columnconfigure(0,weight=0)
-        frame1.columnconfigure(1,weight=1)
-        frame1.grid(column=0,row=0,sticky='nsew')
+        self.master.rowconfigure(0,weight=1)
 
 
-        lbl1 = Label(frame1, text="First")
-        lbl1.grid(row=0,column=0,sticky='w')
+        helptext_frame = LabelFrame(  self.master, 
+                                      text="Description of Selected Script"  )
+        helptext_frame.grid(row=0, column=0, sticky='nsew')
+        helptext_frame.columnconfigure(0,weight=1)
+        helptext_frame.rowconfigure(0,weight=1)
+     
 
-        e1 = Entry(frame1)
-        e1.grid(row=0,column=1,sticky='we')
-        # filebutton = Button(   self, text="Select Input File",
-        #                             command=None    )
-        # filebutton.grid(row=0,column=1,sticky="we")
-
-
-        lbl2 = Label(frame1, text="Second")
-        lbl2.grid(row=1,column=0,sticky='w')
-
-        e2 = Entry(frame1)
-        e2.grid(row=1,column=1,sticky='we')
+        msg_text = """
+This shows how to make a simple script. The script:
+  - looks at people in ECE Dept.
+  - returns # of duespayers and membership %
+"""
+        msg = Label(helptext_frame, text=msg_text, justify='left', bg='cyan')
+        msg.grid(sticky="nw")
 
 
 
