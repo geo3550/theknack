@@ -320,6 +320,8 @@ class GuiIO(Frame):
 
         self.status.set("Done!")
 
+    # NOTE: "mainloop" function is inherited from the "Frame" class
+
 
 class AutomaticIO():
     """Imports, processes, and exports Knack data from given file.""" 

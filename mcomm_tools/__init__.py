@@ -91,7 +91,13 @@ class Scraper(object):
         # Returns list of all elements in 'l' that contain the string 's'
         findstr_inlist = lambda s,l: [ ii for ii in l if s in ii ]
 
-        people = query_result['person']
+        try:
+            people = query_result['person']
+        except KeyError:
+            print("Didn't receive a valid mcommunity response:")
+            print(query)
+            print(query_result)
+            return (False, -1)
         scores = []
         for p in people:
             knack_count = 0
