@@ -6,34 +6,41 @@ import requests
 import os, time
 
 
-# Defines columns to write to output file. Must match input file's header.
-# Note: Since UMID is the db's key, it automatically exports as the 
-# first column.
-# If export_header == 'all fields', it will export the entire DB.
-export_header = [
-                    'Name: First', 'Name: Last', 'Secondary Email', 'Employer Unique Name',
-                    'Enrolled Department', 'Degree'
-                ]
-# export_header = 'all fields'
+name = "MCommunity Scraper"
 
-# Relative paths are tricky sometimes; better to use full paths
-INPATH  = os.getcwd()+'/data/'
-OUTPATH = os.getcwd()+'/results/'
+## Default textbox width is 60 characters.
+## To keep text from wrapping, it's best to keep
+## lines shorter than that.
+description = \
+"""
+This script retrieves the following information from 
+MCommunity:
+  - Employer Unique Name
+  - Enrolled Department
+  - Degree
+
+To export this data, copy and paste the following into 
+"Custom Entry" on the right side of the GUI:
+
+Employer Unique Name,Enrolled Deptartment,Degree
+"""
+
+
+# Create M-Community Object
+mc = mcomm.Scraper()
+
+# File to export all failed matches
+ERROR_FILE = os.getcwd()+'/results/'+'scraper_errors.csv'
 
 
 
-def data_processor(data):
+def processing_function(data):
     """
     This is the top-level function for processing data.
     
     The function is meant to be passed to the importer (in this case GuiIO).
     The importer will call this function after it has parsed the raw data.
     """
-    global data_
-    global newdata
-    global person
-    global query
-    data_ = data
     newdata = data
     numremaining = len(data)
     errors = []
@@ -89,21 +96,6 @@ def data_processor(data):
         tracker -= 1
         time.sleep(.01)
 
-    kt.writecsv_summary(errors, OUTPATH+'scraper_errors.csv')
+    kt.writecsv_summary(errors, ERROR_FILE)
 
     return newdata
-
-
-
-
-
-# Create M-Community Object
-mc = mcomm.Scraper()
-
-# Create & run GUI (must be @ end of file)
-# gui = kt.GuiIO(data_processor, export_header, OUTPATH+'scraper_out.csv')
-# gui = kt.AutomaticIO(INPATH+'all_fields-1.csv', data_processor, 
-gui = kt.AutomaticIO(INPATH+'all_actives-2-18-19.csv', data_processor, 
-                        export_header, OUTPATH+'scraper_out.csv')
-gui.master.title("GEO Scrape-o-Matic")
-gui.mainloop()  

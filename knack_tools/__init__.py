@@ -22,6 +22,7 @@ This is a library of tools that can be used to more easily
 
 
 from Tkinter import *
+from ScrolledText import ScrolledText
 import tkFileDialog
 import json
 import unicodecsv as csv
@@ -224,8 +225,9 @@ def importcsv(filename):
 
 
 def _readcsv(filename):
-    dirname = os.path.dirname(filename)
-    os.chdir(dirname)
+
+    # dirname = os.path.dirname(filename)
+    # os.chdir(dirname)
 
     with open(filename, "rb") as f:
         csvreader = csv.reader(f, encoding='utf-8-sig')
@@ -243,6 +245,9 @@ def writecsv_byid(data_to_write, export_header, filename):
     if export_header == 'all fields':
         ids = data_to_write.keys()
         export_header = data_to_write[ids[0]].keys()
+
+    if not data_to_write:
+        return
 
     ## Test a random person to see if all the columns are there.
     ## If not, warn the user and remove the column.
@@ -289,7 +294,7 @@ def writecsv_summary(data_to_write, filename):
 ###############################################################################
 
 class GuiIO(Frame):
-    """Creates GUI for importing, processing, and exporting Knack data.""" 
+    """Creates Simple GUI to import, process, and export Knack data.""" 
     def __init__(   self, processing_fn, export_header, 
                     out_filename='./out.csv', master=None   ):
         Frame.__init__(self, master)
@@ -368,9 +373,7 @@ class AutomaticIO():
 class ScriptingWindow(Frame):
     """Builds out what you see on the screen."""
 
-    def __init__(self, processor_callback, available_scripts, master=None):
-        
-        self.processor_callback = processor_callback
+    def __init__(self, available_scripts, master=None):
         self.avail_scripts      = available_scripts
 
         ## This just builds the window 
@@ -381,7 +384,7 @@ class ScriptingWindow(Frame):
 
     def initWindow(self):
         self.master.title("sandbox")
-        self.root.geometry("900x420")
+        self.root.geometry("920x420")
 
         self.createWidgets()
 
@@ -402,9 +405,8 @@ class ScriptingWindow(Frame):
         self.helptext = StringVar()
 
         ## Default text for said strings
-        self.input_filename.set(os.getcwd()+'/data/all_fields-1.csv')
+        self.input_filename.set(os.getcwd()+'/data/all_actives-4-26-19.csv')
         self.output_filename.set(os.getcwd()+'/results/out.csv')
-        self.helptext.set(self.avail_scripts[0].description)
 
         ## Keep track of which script is currently selected
         self.processing_function = self.avail_scripts[0].processing_function
@@ -416,7 +418,7 @@ class ScriptingWindow(Frame):
         self.selected_script.set(self.scriptoptions[0])
 
         ## Folder Icon
-        self.foldericon = PhotoImage(file="./icons/magnifier_17.png")
+        self.foldericon = PhotoImage(file=os.getcwd()+"/icons/magnifier_17.png")
 
 
         ###################################################################
@@ -442,7 +444,7 @@ class ScriptingWindow(Frame):
         ###########
         # Second layer of frames form the 
         # base for the checkboxes and
-        # everything else.
+        # everything else, respectively.
         frame_primary    = Frame(frame1)
         frame_checkboxes = LabelFrame(frame1, text="Data to Export")
 
@@ -503,10 +505,11 @@ class ScriptingWindow(Frame):
         helptext_frame.grid(row=3, column=1, sticky='nsew')
         helptext_frame.columnconfigure(0,weight=1)
         helptext_frame.rowconfigure(0,weight=1)
-        
-        helptext_lbl = Label(  helptext_frame, justify="left", 
-                               textvariable=self.helptext  )
-        helptext_lbl.grid(sticky="nw", padx=5, pady=5)
+       
+        self.helptext_lbl = ScrolledText(  helptext_frame, wrap=WORD  )
+        self.helptext_lbl.insert(INSERT,self.avail_scripts[0].description)
+        self.helptext_lbl.config(state=DISABLED)
+        self.helptext_lbl.grid(sticky="nsew", padx=5, pady=5)
 
 
         # 5th row
@@ -516,7 +519,7 @@ class ScriptingWindow(Frame):
 
         ## 6th row
         self.procbutton = Button(  frame_primary, text="Process File!", 
-                                    command=self.processor_callback )
+                                    command=self.run_script )
         self.procbutton.grid(row=5, column=0, columnspan=3, pady=10)
        
 
@@ -567,7 +570,8 @@ class ScriptingWindow(Frame):
         user_header_lbl.grid()
 
         self.user_header_text = StringVar()
-        user_header = Entry(frame_checkboxes, textvariable=self.user_header_text)
+        user_header = Entry(  frame_checkboxes, 
+                              textvariable=self.user_header_text  )
         user_header.grid(sticky='we')
 
 
@@ -601,8 +605,16 @@ class ScriptingWindow(Frame):
                 new_index = idx
 
         ## Update everything with the new script's information
-        self.processing_function = self.avail_scripts[new_index].processing_function
-        self.helptext.set(self.avail_scripts[new_index].description)
+        self.processing_function = self.avail_scripts[new_index].\
+                                        processing_function
+        
+        ## Need to update the textbox explicitly, since it doesn't
+        ## support linking to a StringVar
+        self.helptext_lbl.config(state=NORMAL)
+        self.helptext_lbl.delete(1.0,END)
+        self.helptext_lbl.insert(  INSERT, 
+                        self.avail_scripts[new_index].description  )
+        self.helptext_lbl.config(state=DISABLED)
 
 
     def setstatus(self, status):
@@ -637,8 +649,38 @@ class ScriptingWindow(Frame):
 
         ## Get user-added headers
         user_str = self.user_header_text.get()
-        export_header += user_str.split(',')
+        if user_str:
+            export_header += user_str.split(',')
 
         return export_header
+
+
+    def run_script(self):
+        """This is the top-level processing function. 
+
+              It is called when the "Process File" button is pressed
+              and does the following:
+                1) import data from csv
+                2) run selected processing script on data
+                3) export results to csv
+        """
+        self.status.set("Processing ...")
+
+        try:
+            # Read in file
+            data = importcsv(self.getfilename_input())
+            # Run processing function on data
+            processing_fn  = self.get_processing_function()
+            processed_data = processing_fn(data)
+            # Write processed data
+            writecsv_byid(  processed_data, self.get_export_header(), 
+                            self.getfilename_output()  )
+        except:
+            self.setstatus("Processing Error :-( (see command prompt)")
+            raise
+            
+
+        self.setstatus("Done!")
+
 
 

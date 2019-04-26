@@ -1,54 +1,59 @@
-#!/bin/python2
+# -*- coding: utf-8 -*-
 
 import knack_tools as kt
 import os
 from datetime import date
 
 
-# Defines columns to write to output file. Must match input file's header.
-# Note: Since UMID is the db's key, it automatically exports as the 
-# first column.
-export_header = ['Name: First', 'Name: Last', 'Department', 'Schedule']
+name = "Get Schedules"
 
-# Defines which department to look at.
-depts    = ['3550.LSA - Romance Languages & Literatures']
-# depts    = ['3550.COE - Electrical & Computer Engineering (ECE)']
+## Default textbox width is 60 characters.
+## To keep text from wrapping, it's best to keep
+## lines shorter than that.
+description = \
+"""
+This script processes the class schedule information 
+released by the Registrar's Office and, for the people 
+it can find (the information is usually incomplete), 
+retrieves:
+  - The class they're teaching
+  - The time(s)
+  - The location
 
-# Relative paths are tricky sometimes; better to use full paths
-INPATH  = os.getcwd()+'/data/'
-OUTPATH = os.getcwd()+'/results/'
+Notes:
 
-# Threshold date for "new hires"
-NEW_HIRE_DATE = date(2017,05,01) # (year,month,day)
+  - The raw schedule data can be found at:
+
+      https://ro.umich.edu/calendars/schedule-of-classes
+
+  - Currently, the script must be updated to point to the 
+    correct data file by changing the "RO_DATA" variable 
+    at the top of the file.
+
+  - In order to export this information, add the following 
+    to the "Custom Entry" box on the right side of the GUI:
+
+      Schedule
+"""
+
+# Raw data from Registrar's Office
+RO_DATA  = os.getcwd()+'/data/'+'ro_schedule_FA2018.csv'
+
+# File to export all failed matches
+ERROR_FILE = os.getcwd()+'/results/'+'scraper_errors.csv'
 
 
-
-
-def data_processor(raw):
+def processing_function(raw):
     """
     This is the top-level function for processing data.
     
     The function is meant to be passed to the importer (in this case GuiIO).
     The importer will call this function after it has parsed the raw data.
     """
-    global sdata
+    kdata = raw
 
-    # Only work with small group for now...
-    actives     = kt.filterdata(raw, kt.selectors.allactives)
-    kdata       = kt.filterdata(
-                actives,
-                lambda person: kt.selectors.bydept(person,depts)
-            )
-
-    # actives     = kt.filterdata(raw, kt.selectors.allactives)
-    # engin       = kt.filterdata(actives, kt.selectors.engineers)
-    # kdata       = kt.filterdata(
-    #             engin, 
-    #             lambda person: kt.selectors.hiredafter(person,NEW_HIRE_DATE)
-    #         )
-    kdata_=kdata;
     # import Registrar's Office Schedule information
-    sdata = kt.importrosched(INPATH+'ro_schedule_FA2018.csv')
+    sdata = kt.importrosched(RO_DATA)
 
     # extract schedules for each person and add column to knack data
     errors = []
@@ -93,9 +98,9 @@ def data_processor(raw):
         kdata[umid]['Schedule'] = '\n'.join(hr_schedules)
 
     print('Number of failures: '+str(len(errors)))
-    kt.writecsv_summary(errors, OUTPATH+'schedule_errors.csv')
+    kt.writecsv_summary(errors, ERROR_FILE)
 
-    return kdata_
+    return kdata
 
 
 
@@ -140,10 +145,3 @@ def make_human_readable(schedules):
         out.append(this_sched)
 
     return out
-
-# Create & run GUI (must be @ end of file)
-# gui = kt.GuiIO(data_processor, export_header)
-gui = kt.AutomaticIO(INPATH+'all_actives-9-20-18.csv', data_processor, 
-                        export_header, OUTPATH+'sched_out.csv')
-gui.master.title("sandbox")
-gui.mainloop()  

@@ -1,28 +1,39 @@
-#!/bin/python2
+# -*- coding: utf-8 -*-
 
 import knack_tools as kt
 import os
 from datetime import date
 
 
-# Defines columns to write to output file. Must match input file's header.
-# Note: Since UMID is the db's key, it automatically exports as the 
-# first column.
-export_header = [   'Name: First', 'Name: Last', 'Department', 'Job Title',
-                    'Assessment', 'Last Assessment Date', 'Hire Date', 
-                    'FTE', 'Building','Office #', 'Schedule']
 
-# Relative paths are tricky sometimes; better to use full paths
-INPATH  = os.getcwd()+'/data/'
-OUTPATH = os.getcwd()+'/results/'
+name = "Get Schedules For Knack Import"
 
-# Threshold date for "new hires"
-NEW_HIRE_DATE = date(2017,5,1) # (year,month,day)
-
+## Default textbox width is 60 characters.
+## To keep text from wrapping, it's best to keep
+## lines shorter than that.
+description = \
+"""
+This is the same as "Get Schedules" except the ouput
+is formatted to be imported into knack. To export the
+data, copy the following into the "Custom Entry" box
+on the right side of the GUI:
 
 
+Schedule - Course Title,Schedule - Time,Schedule - Term,
+Schedule - Component,Schedule - Days,Schedule - Catalog Nbr,
+Schedule - Subject,Schedule - Location,Schedule - Start Date,
+Schedule - End Date,Schedule - Session,Schedule - Codes,
+Schedule - Acad Group,Schedule - Class Nbr
+"""
 
-def data_processor(raw):
+# Raw data from Registrar's Office
+RO_DATA_FILE  = os.getcwd()+'/data/'+'ro_schedule_FA2018.csv'
+
+# File to export all failed matches
+ERROR_FILE = os.getcwd()+'/results/'+'scraper_errors.csv'
+
+
+def processing_function(raw):
     """
     This is the top-level function for processing data.
     
@@ -32,23 +43,22 @@ def data_processor(raw):
     global sdata
 
     # Only work with small group for now...
-    # actives     = kt.filterdata(raw, kt.selectors.allactives)
+    actives     = kt.filterdata(raw, kt.selectors.allactives)
     # kdata       = kt.filterdata(
     #             actives,
     #             lambda person: kt.selectors.bydept(person,depts)
     #         )
+    kdata = actives
 
-    actives     = kt.filterdata(raw, kt.selectors.allactives)
-    # unit        = kt.filterdata(actives, kt.selectors.engineers)
-    unit        = kt.filterdata(actives, kt.selectors.northcampus)
-    nonpayers   = kt.filterdata(unit, kt.selectors.nonpayers)
-    kdata       = kt.filterdata(
-                nonpayers, 
-                lambda person: kt.selectors.hiredafter(person,NEW_HIRE_DATE)
-            )
-
+    # actives     = kt.filterdata(raw, kt.selectors.allactives)
+    # engin       = kt.filterdata(actives, kt.selectors.engineers)
+    # kdata       = kt.filterdata(
+    #             engin, 
+    #             lambda person: kt.selectors.hiredafter(person,NEW_HIRE_DATE)
+    #         )
+    
     # import Registrar's Office Schedule information
-    sdata = kt.importrosched(INPATH+'ro_schedule_WN2018.csv')
+    sdata = kt.importrosched(RO_DATA_FILE)
 
     # extract schedules for each person and add column to knack data
     errors = []
@@ -82,20 +92,44 @@ def data_processor(raw):
             print(msg)
             continue
 
-        # Format result for output
-        # print(person['Individual'])
-        hr_schedules = make_human_readable(schedules)
-        # for s in hr_schedules:
-        #     print(s)
-        # print('\n')
+        # Not sure how to deal with multiple results right now...
+        if len(schedules)>1:
+            TAB = 20-len(lname)
+            if TAB<1: TAB = 1
+            msg = 'Multiple schedules for:\t"'+lname+'"'+' '*TAB+'in department: '+\
+                    person['Department']
+            errors.append([lname,msg])
+            continue
 
         # Add to output data
-        kdata[umid]['Schedule'] = '\n'.join(hr_schedules)
+        s = schedules[0]
+        days = ''.join([s['M'],s['T'],s['W'],s['TH'],s['F'],s['S'],s['SU']])
+        kdata[umid]['Schedule - Days'] = days
+
+        empty_cols = dict()
+        empty_cols['Days'] = u''
+        for col in schedules[0].keys():
+            out_col = 'Schedule - '+col;
+            kdata[umid][out_col] = schedules[0][col]
+            empty_cols[out_col] = u''
+
+
+    # Add empty entries for people that have been skipped
+    for umid in kdata:
+        if not 'Schedule - Course Title' in kdata[umid]:
+            kdata[umid].update(empty_cols)
+
+
+    # Don't output anyone we don't have schedule info for
+    kdata_filtered = kt.filterdata(
+                kdata,
+                lambda person: kt.selectors.column_is_empty(person,'Schedule - Course Title')
+            )
 
     print('Number of failures: '+str(len(errors)))
-    kt.writecsv_summary(errors, OUTPATH+'nc_recent_errors.csv')
+    kt.writecsv_summary(errors, ERROR_FILE)
 
-    return kdata
+    return kdata_filtered
 
 
 
@@ -104,7 +138,10 @@ def choose_schedule(person,schedules):
     Given a list of possible schedules, and a person from knack,
     return the of schedules that are most likely for that person.
     """
+    if not person['Department']:
+        print(person)
     dept_codes = kt.DEPT_TO_DEPTCODES[ person['Department'] ]
+
     # Just naivly check the department for now
     out = []
     for s in schedules:
@@ -138,10 +175,3 @@ def make_human_readable(schedules):
         out.append(this_sched)
 
     return out
-
-# Create & run GUI (must be @ end of file)
-# gui = kt.GuiIO(data_processor, export_header)
-gui = kt.AutomaticIO(INPATH+'all_actives-2-17-18.csv', data_processor, 
-                        export_header, OUTPATH+'nc_recent_out.csv')
-gui.master.title("sandbox")
-gui.mainloop()  

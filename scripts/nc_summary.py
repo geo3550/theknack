@@ -5,23 +5,54 @@ from datetime import date, datetime
 import os
 
 
-# Defines columns to write to output file. Must match input file's header.
-# Note: Since UMID is the db's key, it automatically exports as the 
-# first column. If export_header is an empty list, exporting is skipped.
-export_header = []
+name = "North Campus Summary"
 
+## Default textbox width is 60 characters.
+## To keep text from wrapping, it's best to keep
+## lines shorter than that.
+description = \
+"""
+This script is a high-level summary for North Campus
+including (but not limited to):
+  - Overall Size of Bargaining Unit
+  - Relative size of:
+      - North Campus
+      - Engineers
+      - Stewarded NC GSI's
+      - NC International Students
+  - Membership by:
+      - Overall
+      - North Campus
+      - Engineers
+      - Stewarded NC Depts
+      - Unstewarded NC Depts
+      - NC Internationl Students
+      - NC New Hires
+      - NC Engin PhDs
+      - NC Engin Masters
+
+
+Notes:
+  - Summary data is exported to: "results/nc_summary.csv"
+  - Some information should be updated in the script
+    when it is run on new data. The varibles are at the 
+    top of the file.
+      - The threshold date to be considered a "new hire"
+      - The most recent stewards data. This data is 
+        exported from: 
+          Local Database ->  Groups -> Stewards' Council
+"""
 # Threshold date for "new hires"
 NEW_HIRE_DATE = date(2017,05,01) # (year,month,day)
 
-# Relative paths are tricky sometimes; better to use full paths
-INPATH  = os.getcwd()+'/data/'
-OUTPATH = os.getcwd()+'/results/'
+# File to dump summary data
+OUT_FILE = os.getcwd()+'/results/'+'nc_summary.csv'
 
 # Import list of stewards
-stewards = kt.importstews(INPATH+'stewards-3-23-18.csv')
+stewards = kt.importstews(os.getcwd()+'/data/'+'stewards-3-23-18.csv')
 
 
-def data_processor(raw):
+def processing_function(raw):
     """
     This is the top-level function for processing data.
     
@@ -152,8 +183,8 @@ def data_processor(raw):
     labels += ['Relative Number of NC International Students (%)']
     results+= [(100.0*total_intl)/north_campus_size]
 
-    labels += ['Relative Number of NC Permanent Resident Students (%)']
-    results+= [(100.0*total_permres)/north_campus_size]
+    # labels += ['Relative Number of NC Permanent Resident Students (%)']
+    # results+= [(100.0*total_permres)/north_campus_size]
 
     labels += ['']
     results+= ['']
@@ -182,8 +213,8 @@ def data_processor(raw):
     labels += ['Membership Among International Students (%)']
     results+= [(100.0*intl_members)/total_intl]
 
-    labels += ['Membership Among Permanent Residents (%)']
-    results+= [(100.0*permres_members)/total_permres]
+    # labels += ['Membership Among Permanent Residents (%)']
+    # results+= [(100.0*permres_members)/total_permres]
 
     labels += ['']
     results+= ['']
@@ -229,7 +260,7 @@ def data_processor(raw):
 
 
     # Print summary results to csv
-    kt.writecsv_summary(zip(labels,results), OUTPATH+'nc_summary.csv')
+    kt.writecsv_summary(zip(labels,results), OUT_FILE)
 
 
 
@@ -253,16 +284,3 @@ def display_results(labels, results):
         print(l+':'+' '*tab+str(r))
 
 
-
-
-
-# Create & run GUI (must be @ end of file)
-# gui = kt.GuiIO(data_processor, export_header, OUTPATH+'nc_out.csv')
-# gui = kt.AutomaticIO(INPATH+'small_test-all_fields.csv',
-#                         data_processor, export_header)
-# gui = kt.AutomaticIO(INPATH+'all_actives-2-9-18.csv', data_processor, 
-#                         export_header, OUTPATH+'nc_out.csv')
-gui = kt.AutomaticIO(INPATH+'engin_scraped-3-19-18.csv', data_processor, 
-                        export_header, OUTPATH+'nc_out.csv')
-gui.master.title("North Campus Summary")
-gui.mainloop()

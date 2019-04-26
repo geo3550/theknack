@@ -24,7 +24,7 @@ def bydegree(person, degree_list):
     Otherwise return None.
     """
     for d in degree_list:
-        if person['Degree'] == d:
+        if person['Education'] == d:
             return person
     return None
 

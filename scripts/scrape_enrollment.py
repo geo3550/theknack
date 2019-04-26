@@ -1,4 +1,4 @@
-#!/bin/python2
+# -*- coding: utf-8 -*-
 
 import knack_tools as kt
 import mcomm_tools as mcomm
@@ -6,22 +6,29 @@ import requests
 import os, time
 
 
-# Defines columns to write to output file. Must match input file's header.
-# Note: Since UMID is the db's key, it automatically exports as the 
-# first column.
-# If export_header == 'all fields', it will export the entire DB.
-export_header = [
-                    'Name: First', 'Name: Last', 'Employment Status'
-                ]
-# export_header = 'all fields'
 
-# Relative paths are tricky sometimes; better to use full paths
-INPATH  = os.getcwd()+'/data/'
-OUTPATH = os.getcwd()+'/results/'
+name = "Scrape Enrollment"
+
+## Default textbox width is 60 characters.
+## To keep text from wrapping, it's best to keep
+## lines shorter than that.
+description = \
+"""
+This script uses MCommunity to determine who has graudated.
+
+To export this information, choose the "Employment Status"
+option on the right side of the GUI.
+"""
 
 
+# Create M-Community Object
+mc = mcomm.Scraper()
 
-def data_processor(data):
+
+# File to export all failed matches
+ERROR_FILE = os.getcwd()+'/results/'+'scraper_errors.csv'
+
+def processing_function(data):
     """
     This is the top-level function for processing data.
     
@@ -55,13 +62,12 @@ def data_processor(data):
             if person:
                 # check affiliation
                 try:
-                    print(person['affiliation'])
                     if person['affiliation']=='Alumni':
                         newdata[umid]['Employment Status'] = 'Retired'
                 except KeyError:
                     errors.append( (query, 'No Affiliation: '+query) )
                     print(errors[-1][1])
-                    print(person)
+                    # print(person)
 
             else:
                 errors.append( (query, "Can't choose person: "+query) )
@@ -74,21 +80,6 @@ def data_processor(data):
         tracker -= 1
         time.sleep(.01)
 
-    kt.writecsv_summary(errors, OUTPATH+'scraper_errors.csv')
+    kt.writecsv_summary(errors, OUT_FILE)
 
     return newdata
-
-
-
-
-
-# Create M-Community Object
-mc = mcomm.Scraper()
-
-# Create & run GUI (must be @ end of file)
-# gui = kt.GuiIO(data_processor, export_header, OUTPATH+'scraper_out.csv')
-# gui = kt.AutomaticIO(INPATH+'all_inactives-2-18-19.csv', data_processor, 
-gui = kt.AutomaticIO(INPATH+'all_fields-1.csv', data_processor, 
-                        export_header, OUTPATH+'scraper_out.csv')
-gui.master.title("GEO Scrape-o-Matic")
-gui.mainloop()  

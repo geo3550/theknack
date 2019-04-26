@@ -1,18 +1,23 @@
-#!/bin/python2
+# -*- coding: utf-8 -*-
 
 import knack_tools as kt
 
 
-# Defines columns to write to output file. Must match input file's header.
-# Note: Since UMID is the db's key, it automatically exports as the 
-# first column.
-export_header = ['Name: First', 'Name: Last', 'Department', 'Member Status']
+name = "Scripting Example"
+
+## Default textbox width is 60 characters.
+## To keep text from wrapping, it's best to keep
+## lines shorter than that.
+description = \
+"""
+This is a simple example for writing your own script.
+"""
 
 # Defines which department to look at.
 depts = ['Urban Planning', 'Biological Chemistry Dept']
 
 
-def data_processor(data):
+def processing_function(data):
     """
     This is the top-level function for processing data.
     
@@ -21,20 +26,25 @@ def data_processor(data):
     """
 
     # Do some processing
-    processed = kt.filterdata(data, row_selector)
+    #   Note that there are lots of pre-written selectors in the
+    #   "knack_tools" package. For example, you could replace
+    #   "custom_row_selector" with "kt.selectors.all_actives"
+    #   to get only people currently in the bargaining unit.
+    processed = kt.filterdata(data, custom_row_selector)
 
-    # Summarize some results
+    # Summarize some results & show it on the command prompt
     nm = kt.count_duespayers(processed)
     membership = nm/float(len(processed))
     print('\n')
     print('Membership in selected departments: %d%%' % (membership*100))
     print('\n')
 
+    # Return the processed data 
     return processed
 
 
 
-def row_selector(row):
+def custom_row_selector(row):
     """
     Given the dictionary for a single person, decide whether to
     pass the data or return None.
@@ -58,8 +68,3 @@ def row_selector(row):
         return None
 
 
-
-# Create & run GUI (must be @ end of file)
-gui = kt.GuiIO(data_processor, export_header)
-gui.master.title("sandbox")
-gui.mainloop()  
