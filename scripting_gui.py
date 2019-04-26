@@ -6,6 +6,8 @@ import tkFileDialog
 import os
 import importlib
 
+import scripts
+
 # Defines columns to write to output file. Must match input file's header.
 # Note: Since UMID is the db's key, it automatically exports as the 
 # first column.
@@ -15,31 +17,7 @@ export_header = ['Name: First', 'Name: Last', 'Department', 'Member Status']
 ###############################################################################
 # Import all scripts
 ###############################################################################
-scripts = []
-
-## Make a list of (and import) all script modules that exist in this folder.
-_scripts = []
-for filename in os.listdir(os.getcwd()+'/scripts/'):
-    if not filename.endswith('.py'):
-        ## Skip any files that aren't python scripts.
-        continue
-
-    ## Extract the name of the module
-    this_filename = filename.split('.')[-2]
-    if this_filename.startswith('__'):
-        continue
-    
-    ## Import script as a module
-    try:
-        this_script = importlib.import_module('scripts.'+this_filename,'scripts')
-    except:
-        ## TO DO: Handle broken modules without breaking everything
-        raise 
-
-    ## Pull the things we need out of the module
-    scripts += [kt.Script( this_script.name, this_script.description, 
-                            this_script.processing_function  )]
-
+available_scripts = scripts.import_scripts()
 
 
 ###############################################################################
@@ -86,7 +64,7 @@ class GuiIO(Frame):
 ###############################################################################
 
 # Create the object that defines the gui
-gui = GuiIO(scripts)
+gui = GuiIO(available_scripts)
 
 # Run gui
 gui.mainloop()  

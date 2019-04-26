@@ -642,10 +642,3 @@ class ScriptingWindow(Frame):
         return export_header
 
 
-
-class Script():
-    """Simple container that holds all the info associated with a script."""
-    def __init__(self, name, description, processing_function):
-        self.name                = name
-        self.description         = description
-        self.processing_function = processing_function
