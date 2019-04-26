@@ -238,7 +238,7 @@ def data_processor(raw):
 
 
 
-    return nc_newhires
+    return None
 
 
 

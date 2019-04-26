@@ -244,6 +244,16 @@ def writecsv_byid(data_to_write, export_header, filename):
         ids = data_to_write.keys()
         export_header = data_to_write[ids[0]].keys()
 
+    ## Test a random person to see if all the columns are there.
+    ## If not, warn the user and remove the column.
+    person = data_to_write[data_to_write.keys()[0]]
+    for idx,column_name in enumerate(export_header):
+        if not column_name in person:
+            warntxt = 'WARNING: The column "'+column_name+'" to be exported '+\
+                      'does not exist in the data. It will be removed.'
+            print(warntxt)
+            del export_header[idx]
+
 
     print "Writing data ..."
     with open(filename, "wb") as f:
@@ -349,3 +359,293 @@ class AutomaticIO():
         # Write processed data
         writecsv_byid(processed_data, self.export_header, self.out_filename)
   
+
+
+###############################################################################
+# The Scripting GUI Window
+###############################################################################
+
+class ScriptingWindow(Frame):
+    """Builds out what you see on the screen."""
+
+    def __init__(self, processor_callback, available_scripts, master=None):
+        
+        self.processor_callback = processor_callback
+        self.avail_scripts      = available_scripts
+
+        ## This just builds the window 
+        self.root = Tk()
+        Frame.__init__(self, master)
+        self.initWindow()
+
+
+    def initWindow(self):
+        self.master.title("sandbox")
+        self.root.geometry("900x420")
+
+        self.createWidgets()
+
+
+    def createWidgets(self):
+
+
+        ############################
+        # Setup some things first
+        ############################
+
+        ## These are strings we use to control other things.
+        ## Note that these are tkinter string objects, so
+        ## to retrieve the values, we have to use "var.get()"
+        self.status   = StringVar()
+        self.input_filename = StringVar()
+        self.output_filename = StringVar()
+        self.helptext = StringVar()
+
+        ## Default text for said strings
+        self.input_filename.set(os.getcwd()+'/data/all_fields-1.csv')
+        self.output_filename.set(os.getcwd()+'/results/out.csv')
+        self.helptext.set(self.avail_scripts[0].description)
+
+        ## Keep track of which script is currently selected
+        self.processing_function = self.avail_scripts[0].processing_function
+
+        ## Script selection drop down
+        self.scriptoptions = [script.name for script in self.avail_scripts]
+        self.selected_script  = StringVar()
+        ## This sets default option for the drop down
+        self.selected_script.set(self.scriptoptions[0])
+
+        ## Folder Icon
+        self.foldericon = PhotoImage(file="./icons/magnifier_17.png")
+
+
+        ###################################################################
+        # Position everything in the master frame (the window itself)
+        ###################################################################
+
+        ## Base Layer (everything builds on this)
+        self.master.grid()
+        self.master.columnconfigure(0, weight=1)
+        self.master.rowconfigure(0, weight=1)
+
+        ###########
+        # First frame separates the 
+        # checkboxes from everything else.
+        frame1 = Frame(self.master)
+        frame1.grid(sticky='nsew')
+        ## This makes it so this frame
+        ## stretches when you resize the main window
+        frame1.columnconfigure(0, weight=1)
+        frame1.rowconfigure(0, weight=1)
+
+
+        ###########
+        # Second layer of frames form the 
+        # base for the checkboxes and
+        # everything else.
+        frame_primary    = Frame(frame1)
+        frame_checkboxes = LabelFrame(frame1, text="Data to Export")
+
+        frame_primary.grid(row=0, column=0, sticky='nsew')
+        frame_checkboxes.grid(row=0, column=1, sticky='nsew')
+
+        ## Stretch the column with all the text boxes
+        frame_primary.columnconfigure(1, weight=1)
+        ## Stretch the row with the script description
+        frame_primary.rowconfigure(3, weight=1)
+
+
+
+        ###########
+        # Build primary frame
+
+        ## 1st row
+        lbl_script = Label(frame_primary, text="Script:")
+        lbl_script.grid(row=0, column=0, sticky='w')
+        
+        self.scriptmenu = OptionMenu(   frame_primary, self.selected_script,
+                                        *self.scriptoptions, 
+                                        command=self._update_script  )
+        self.scriptmenu.grid(row=0, column=1, sticky="we")
+
+
+        ## 2nd row
+        lbl_input  = Label(frame_primary, text="Input File:")
+        lbl_input.grid(row=1, column=0, sticky='w')
+
+        self.input_entry = Entry(   frame_primary, 
+                                    textvariable=self.input_filename  )
+        self.input_entry.grid(row=1, column=1, sticky="we")
+
+        inbutton = Button(  frame_primary,
+                            command=lambda: self._getfilename_input()  )
+        inbutton.config(image=self.foldericon, width="17", height="17")
+        inbutton.grid(row=1, column=2)
+
+
+        ## 3rd row
+        lbl_output = Label(frame_primary, text="Output File:")
+        lbl_output.grid(row=2, column=0, sticky='w')
+
+        self.output_entry = Entry(  frame_primary,
+                                    textvariable=self.output_filename  )
+        self.output_entry.grid(row=2, column=1, sticky="we")
+
+        outbutton = Button(   frame_primary,
+                              command=lambda: self._getfilename_output()    )
+        outbutton.config(image=self.foldericon, width="17",height="17")
+        outbutton.grid(row=2, column=2)
+
+
+        ## 4th row
+        helptext_frame = LabelFrame(  frame_primary, 
+                                      text="Description of Selected Script"  )
+        helptext_frame.grid(row=3, column=1, sticky='nsew')
+        helptext_frame.columnconfigure(0,weight=1)
+        helptext_frame.rowconfigure(0,weight=1)
+        
+        helptext_lbl = Label(  helptext_frame, justify="left", 
+                               textvariable=self.helptext  )
+        helptext_lbl.grid(sticky="nw", padx=5, pady=5)
+
+
+        # 5th row
+        self.statusprompt = Label(frame_primary, textvariable = self.status)
+        self.statusprompt.grid(row=4, column=0, columnspan=3)
+
+
+        ## 6th row
+        self.procbutton = Button(  frame_primary, text="Process File!", 
+                                    command=self.processor_callback )
+        self.procbutton.grid(row=5, column=0, columnspan=3, pady=10)
+       
+
+        ###########
+        # Build checkbox frame
+
+        ## Each element: [header_text, is_checked_by_default]
+        common_data = [
+            ['Individual',           True ],
+            ['Name: First',          False],
+            ['Name: Last',           False],
+            ['Department',           True ],
+            ['Secondary Department', False],
+            ['Employer Unique Name', False],
+            ['Employment Status',    False],
+            ['Member Status',        True ],
+            ['Preferred Email',      True ],
+            ['Secondary Email',      True ],
+            ['Assessment',           True ],
+            ['Last Assessment Date', True ],
+            ['Hire Date',            False],
+            ['FTE',                  False]
+        ]
+
+        checkboxes = []
+        self.checkbox_strings = []
+        self.checkbox_values  = []
+        for idx,export_elt in enumerate(common_data):
+            ## Set default checkbox state
+            this_value = IntVar()
+            if export_elt[1]:
+                this_value.set(1)
+            else:
+                this_value.set(0)
+
+            ## Build checkbox
+            this_box = Checkbutton( frame_checkboxes, text=export_elt[0], 
+                                    variable=this_value )
+            this_box.grid(row=idx, column=0, sticky='w')
+
+            ## Save stuff for later
+            self.checkbox_strings += [export_elt[0]]
+            self.checkbox_values  += [this_value]
+            checkboxes += [this_box]
+
+        lblstr = 'Custom Entry:\n(comma separated, e.g. "Building,Office #")'
+        user_header_lbl = Label(frame_checkboxes, text=lblstr)
+        user_header_lbl.grid()
+
+        self.user_header_text = StringVar()
+        user_header = Entry(frame_checkboxes, textvariable=self.user_header_text)
+        user_header.grid(sticky='we')
+
+
+
+
+    def _getfilename_input(self):
+        """
+            Internal function. 
+            This gets called when the input file search button is pressed.
+        """
+        self.input_filename.set(tkFileDialog.askopenfilename())
+
+
+    def _getfilename_output(self):
+        """
+            Internal function. 
+            This gets called when the output file search button is pressed.
+        """
+        self.output_filename.set(tkFileDialog.askopenfilename())
+
+    def _update_script(self, new_script_name):
+        """
+            Internal function.
+            This gets called whenever a different script gets selected
+            (in the drop-down menu) 
+        """
+        ## Figure out which script got selected
+        script_names = [script.name for script in self.avail_scripts]
+        for idx,name in enumerate(script_names):
+            if name==new_script_name:
+                new_index = idx
+
+        ## Update everything with the new script's information
+        self.processing_function = self.avail_scripts[new_index].processing_function
+        self.helptext.set(self.avail_scripts[new_index].description)
+
+
+    def setstatus(self, status):
+        self.status.set(status)
+
+
+
+    def getfilename_output(self):
+        """Returns the contents of the outut file dialog box"""
+        return self.output_filename.get()
+
+
+    def getfilename_input(self):
+        """Returns the contents of the input file dialog box"""
+        return self.input_filename.get()
+
+
+    def get_processing_function(self):
+        """Returns the selected script's processing function"""
+        return self.processing_function
+
+
+    def get_export_header(self):
+        """Returns a list of all headers that are selected with checkboxes"""
+
+        ## Get headers from checkboxes
+        export_header = []
+        checkbox_values = [check.get() for check in self.checkbox_values]
+        for idx,checkbox_value in enumerate(checkbox_values):
+            if checkbox_value==1:
+                export_header += [self.checkbox_strings[idx]]
+
+        ## Get user-added headers
+        user_str = self.user_header_text.get()
+        export_header += user_str.split(',')
+
+        return export_header
+
+
+
+class Script():
+    """Simple container that holds all the info associated with a script."""
+    def __init__(self, name, description, processing_function):
+        self.name                = name
+        self.description         = description
+        self.processing_function = processing_function
