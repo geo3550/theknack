@@ -373,8 +373,9 @@ class AutomaticIO():
 class ScriptingWindow(Frame):
     """Builds out what you see on the screen."""
 
-    def __init__(self, available_scripts, master=None):
-        self.avail_scripts      = available_scripts
+    def __init__(self, available_scripts, title='Knack Scripts', master=None):
+        self.avail_scripts = available_scripts
+        self.title = title
 
         ## This just builds the window 
         self.root = Tk()
@@ -383,7 +384,7 @@ class ScriptingWindow(Frame):
 
 
     def initWindow(self):
-        self.master.title("sandbox")
+        self.master.title(self.title)
         self.root.geometry("920x420")
 
         self.createWidgets()
