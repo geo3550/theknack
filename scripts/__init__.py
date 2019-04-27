@@ -29,7 +29,7 @@ def import_scripts():
         try:
             ## Import script as a module
             ##   We have to use __import__ here because, for some reason,
-            ##   import_module can't find the modules in the scripts package 
+            ##   import_module can't find the modules in the 'scripts' package 
             ##   (in python 2.7, at least)
             this_script = __import__(this_filename, globals(), locals(), [],-1)
             # this_script = importlib.import_module(this_filename)

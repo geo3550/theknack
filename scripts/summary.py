@@ -29,7 +29,7 @@ including (but not limited to):
 
 
 Notes:
-  - Summary data is exported to: "results/nc_summary.csv"
+  - Summary data is exported to: "results/summary.csv"
   - Some information should be updated in the script
     when it is run on new data. The varibles are at the 
     top of the file.
@@ -42,7 +42,7 @@ Notes:
 NEW_HIRE_DATE = date(2017,05,01) # (year,month,day)
 
 # File to dump summary data
-OUT_FILE = os.getcwd()+'/results/'+'nc_summary.csv'
+OUT_FILE = os.getcwd()+'/results/'+'summary.csv'
 
 # Import list of stewards
 stewards = kt.importstews(os.getcwd()+'/data/'+'stewards-3-23-18.csv')
