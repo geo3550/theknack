@@ -18,6 +18,8 @@ import requests
 import urllib
 import base64
 
+import knack_tools as kt
+
 ## TO DO: It'd be nice to reference the main 'constants.py' file for this
 ##          rather than duplicating it...
 MASTERS = {"MHSA","MLArch", "DNP" , "MUP", "MHI", "MSW", "MFA", "AMusD", "MBA",
@@ -171,7 +173,8 @@ class Scraper(object):
             if "PhD" in x:
                 return [x[:-14], "PhD"]
         for x in stud:
-            for m in MASTERS:
+            # for m in MASTERS:
+            for m in kt.constants.MASTERS:
                 if m in x:
                     return [x[:-10-len(m)], m]
         for x in stud:

@@ -14,7 +14,7 @@ This is a library of tools that can be used to more easily
     in the input file (except "Employer ID"). For example:
 
     data = {
-      '93819370': {'Name: First':'Foo', 'Name: Last':'Bar'},
+      '93819370': {'Name: First':'Foo',   'Name: Last':'Bar'},
       '83927489': {'Name: First':'Josie', 'Name: Last':'Cat'}
     }
 
@@ -22,16 +22,15 @@ This is a library of tools that can be used to more easily
 
 
 from Tkinter import *
-from ScrolledText import ScrolledText
 import tkFileDialog
+from ScrolledText import ScrolledText
 import json
 import unicodecsv as csv
+
 # import csv
 import os, time
 from io import BytesIO
 from copy import copy
-
-
 
 # local modules
 import selectors
@@ -111,7 +110,9 @@ def parsebyid(lines):
 
     # Create overall dictionary of all the people
     # We end up with this structure:
-    # data{umid}{column_label} => data for specific person.
+    # data{umid}               => all data for specific person.
+    # data{umid}{column_label} => "column_label" data for specific person.
+    #                             (e.g. "Member Status")
     return [dict(zip(ids,data)), header, ids]
 
 
@@ -124,6 +125,9 @@ def parsestews(lines):
     Given raw export of stews list,
     parse each line into a dictionary with departments as keys
     and a list of stewards' names as values.
+
+    To get the stews list, go to the "Stewards'" group in Knack
+    and export the whole list.
     """
 
     # Sanitize column labels and find the Depatment column
@@ -197,6 +201,12 @@ def parserosched(lines):
 
 
 def importstews(filename):
+    """Import raw data from Stewards' list
+
+    To get the stews list, go to the "Stewards'" group in Knack
+    and export the whole list.
+
+    """
     # Read in file
     lines = _readcsv(filename)
 
@@ -206,6 +216,7 @@ def importstews(filename):
 
 
 def importrosched(filename):
+    """Import class schedule data from Registrar's Office."""
     # Read in file
     lines = _readcsv(filename)
 
@@ -215,7 +226,16 @@ def importrosched(filename):
 
 
 def importcsv(filename):
-    print "Processing data ..."
+    """Read in raw data from csv file and parse into a dictionary.
+
+    The dictionary is structured as: 
+        {"umid": {"column_name": "column_data"}}. So, each element
+    in the dictionary is all of the data for the person with this umid.
+    The data is a dictionary where each element is a different column.
+    So, getting a person's membership status would look like:
+        data["93048579"]["Membership Status"]
+    """
+    print("Processing data ...")
     # Read in file
     lines = _readcsv(filename)
 
@@ -225,6 +245,7 @@ def importcsv(filename):
 
 
 def _readcsv(filename):
+    """Helper function to read in raw csv data."""
 
     # dirname = os.path.dirname(filename)
     # os.chdir(dirname)
@@ -240,6 +261,15 @@ def _readcsv(filename):
 
 
 def writecsv_byid(data_to_write, export_header, filename):
+    """Takes any parsed Knack data and exports it to "filename" as csv.
+
+    "export_header" is a list of which columns should be exported.
+          1) if export_header == None:         do nothing.
+          2) if export_header == "all fields": write all data in data_to_write.
+          3) otherwise:                        write only columns with the
+                                                 names specified in 
+                                                 "export_header"
+    """
     if not export_header:
         return
     if export_header == 'all fields':
@@ -260,7 +290,7 @@ def writecsv_byid(data_to_write, export_header, filename):
             del export_header[idx]
 
 
-    print "Writing data ..."
+    print("Writing data ...")
     with open(filename, "wb") as f:
         csvwriter = csv.writer(f)
         csvwriter.writerow(['UMID']+export_header)
@@ -268,16 +298,18 @@ def writecsv_byid(data_to_write, export_header, filename):
             try:
                 row = [data_to_write[id][col] for col in export_header]
             except KeyError:
-                print(id)
-                print(data_to_write[id])
-                raise
+                warntxt = 'WARNING: The column "'+column_name+'" to be '+\
+                            'exported does not exist for person with umid: '+\
+                            id+'. It will be skipped.'
+                print(warntxt)
+                row = ['']
             csvwriter.writerow([id]+row)
     f.close()
 
 
 
 def writecsv_summary(data_to_write, filename):
-    print "Writing summary ..."
+    print("Writing summary ...")
     with open(filename, "wb") as f:
         csvwriter = csv.writer(f)
         for row in data_to_write:
@@ -305,9 +337,10 @@ class GuiIO(Frame):
         self.processing_fn = processing_fn
         self.export_header = export_header
         self.out_filename = out_filename
+
+
     def createWidgets(self):
-        #self.tokenprompt = Label(text = "Access token:")
-        #self.tokenentry = Entry()
+        
         self.filebutton = Button(   self, text="Select Input File",
                                     command=self.getfilename    )
         self.filenameprompt = Label(textvariable = self.filename)
@@ -315,14 +348,16 @@ class GuiIO(Frame):
                                     command=self.process )
         self.statusprompt = Label(textvariable = self.status)
 
-        #self.tokenprompt.grid(row=0, column=0)
-        #self.tokenentry.grid(row=0, column=1)
         self.filenameprompt.grid(row=1, column=0, columnspan=2)
         self.filebutton.grid(row=2, column=0)
         self.getunbutton.grid(row=3, column=0)
         self.statusprompt.grid(row=3, column=1)
+
+
     def getfilename(self):
         self.filename.set(tkFileDialog.askopenfilename())
+
+
     def process(self):
         self.status.set("Processing ...")
 
@@ -364,6 +399,8 @@ class AutomaticIO():
         # Write processed data
         writecsv_byid(processed_data, self.export_header, self.out_filename)
   
+
+
 
 
 ###############################################################################
@@ -434,6 +471,14 @@ class ScriptingWindow(Frame):
         ###########
         # First frame separates the 
         # checkboxes from everything else.
+        #
+        # ------------------------
+        # |         |            |
+        # | other   | checkboxes |
+        # | stuff   |            |
+        # |         |            |
+        # ------------------------
+
         frame1 = Frame(self.master)
         frame1.grid(sticky='nsew')
         ## This makes it so this frame
@@ -446,6 +491,15 @@ class ScriptingWindow(Frame):
         # Second layer of frames form the 
         # base for the checkboxes and
         # everything else, respectively.
+        #
+        # --------------------------------
+        # |              |               |
+        # | ------------ | ------------- |
+        # | | primary  | | | checkbox  | |
+        # | | frame    | | | frame     | |
+        # | ------------ | ------------- |
+        # |              |               |
+        # --------------------------------
         frame_primary    = Frame(frame1)
         frame_checkboxes = LabelFrame(frame1, text="Data to Export")
 
@@ -461,6 +515,20 @@ class ScriptingWindow(Frame):
 
         ###########
         # Build primary frame
+        #
+        # --------------------------------
+        # |              |               |
+        # | ------------ | ------------- |
+        # | | 1st row  | | |           | |
+        # | ------------ | |           | |
+        # | | 2nd row  | | |           | |
+        # | ------------ | |           | |
+        # | |    .     | | |           | |
+        # | |    .     | | |           | |
+        # | |    .     | | |           | |
+        # | ------------ | ------------- |
+        # |              |               |
+        # --------------------------------
 
         ## 1st row
         lbl_script = Label(frame_primary, text="Script:")
@@ -513,7 +581,7 @@ class ScriptingWindow(Frame):
         self.helptext_lbl.grid(sticky="nsew", padx=5, pady=5)
 
 
-        # 5th row
+        ## 5th row 
         self.statusprompt = Label(frame_primary, textvariable = self.status)
         self.statusprompt.grid(row=4, column=0, columnspan=3)
 
@@ -526,6 +594,20 @@ class ScriptingWindow(Frame):
 
         ###########
         # Build checkbox frame
+        #
+        # ---------------------------------
+        # |              |                |
+        # | ------------ | -------------- |
+        # | |          | | |            | |
+        # | |          | | | checkboxes | |
+        # | |          | | |            | |
+        # | |          | | -------------- |
+        # | |          | | | text       | |
+        # | |          | | -------------- |
+        # | |          | | | user input | |
+        # | ------------ | -------------- |
+        # |              |                |
+        # ---------------------------------
 
         ## Each element: [header_text, is_checked_by_default]
         common_data = [
@@ -556,12 +638,12 @@ class ScriptingWindow(Frame):
             else:
                 this_value.set(0)
 
-            ## Build checkbox
+            ## Build current checkbox
             this_box = Checkbutton( frame_checkboxes, text=export_elt[0], 
                                     variable=this_value )
             this_box.grid(row=idx, column=0, sticky='w')
 
-            ## Save stuff for later
+            ## Save some parameters to change later
             self.checkbox_strings += [export_elt[0]]
             self.checkbox_values  += [this_value]
             checkboxes += [this_box]
@@ -620,7 +702,6 @@ class ScriptingWindow(Frame):
 
     def setstatus(self, status):
         self.status.set(status)
-
 
 
     def getfilename_output(self):
