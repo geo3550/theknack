@@ -49,7 +49,7 @@ NEW_HIRE_DATE = date(2017,05,01) # (year,month,day)
 OUT_FILE = os.getcwd()+'/results/'+'nc_summary.csv'
 
 # Import list of stewards
-stewards = kt.importstews(os.getcwd()+'/data/'+'stewards-3-23-18.csv')
+stewards = kt.importstews(os.getcwd()+'/data/'+'stewards5-7-2019.csv')
 
 
 def processing_function(raw):
