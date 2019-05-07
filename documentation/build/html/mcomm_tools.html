@@ -1,0 +1,165 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>mcomm_tools package &#8212; knack_scripts 1.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="mcomm-tools-package">
+<h1>mcomm_tools package<a class="headerlink" href="#mcomm-tools-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-mcomm_tools.config">
+<span id="mcomm-tools-config-module"></span><h2>mcomm_tools.config module<a class="headerlink" href="#module-mcomm_tools.config" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>~~~ This file must NOT be committed to git ~~~</dt>
+<dd>(it should be listed in .gitignore)</dd>
+</dl>
+<p>This is a wrapper for whatever Mcommunity client_id &amp; client_secret we want to use.</p>
+<p>We’re keeping this separate so it doesn’t get committed to the public repo. 
+This file should only be given to trusted activists &amp; access requests should go through
+the tech committee (or possibly staff)</p>
+</div>
+<div class="section" id="module-mcomm_tools">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mcomm_tools" title="Permalink to this headline">¶</a></h2>
+<p>Mcommunity Scraper Tool
+v0.1</p>
+<dl class="docutils">
+<dt>Note: If you don’t have the “config.py” file in this folder,</dt>
+<dd>you need to get it from a staff member (or someone on 
+the tech committee). This is for security.</dd>
+</dl>
+<dl class="class">
+<dt id="mcomm_tools.Scraper">
+<em class="property">class </em><code class="descclassname">mcomm_tools.</code><code class="descname">Scraper</code><a class="reference internal" href="_modules/mcomm_tools.html#Scraper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mcomm_tools.Scraper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Connects to m-community and looks up information</p>
+<dl class="method">
+<dt id="mcomm_tools.Scraper.choose_person">
+<code class="descname">choose_person</code><span class="sig-paren">(</span><em>query_result</em>, <em>knack_result</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mcomm_tools.html#Scraper.choose_person"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mcomm_tools.Scraper.choose_person" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given the json from an mcommunity api call, compare as many pieces 
+of information we have and choose the one that has the highest 
+match %. Return chosen person.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mcomm_tools.Scraper.client_id">
+<code class="descname">client_id</code><em class="property"> = '80c41b6d-c9ca-4ee5-a67c-a4277dcdfc5f'</em><a class="headerlink" href="#mcomm_tools.Scraper.client_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mcomm_tools.Scraper.client_secret">
+<code class="descname">client_secret</code><em class="property"> = 'Y7fG0qN4yH5mB7tF0aC6jT6aO2jX0dT1aU2lM1iS0rS6jB1vX3'</em><a class="headerlink" href="#mcomm_tools.Scraper.client_secret" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mcomm_tools.Scraper.getenrolled">
+<code class="descname">getenrolled</code><span class="sig-paren">(</span><em>person</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mcomm_tools.html#Scraper.getenrolled"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mcomm_tools.Scraper.getenrolled" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mcomm_tools.Scraper.querydb">
+<code class="descname">querydb</code><span class="sig-paren">(</span><em>query</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mcomm_tools.html#Scraper.querydb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mcomm_tools.Scraper.querydb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mcomm_tools.Scraper.token_access_header">
+<code class="descname">token_access_header</code><em class="property"> = {'Authorization': 'Basic ODBjNDFiNmQtYzljYS00ZWU1LWE2N2MtYTQyNzdkY2RmYzVmOlk3ZkcwcU40eUg1bUI3dEYwYUM2alQ2YU8yalgwZFQxYVUybE0xaVMwclM2akIxdlgz'}</em><a class="headerlink" href="#mcomm_tools.Scraper.token_access_header" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mcomm_tools.Scraper.token_access_string">
+<code class="descname">token_access_string</code><em class="property"> = 'ODBjNDFiNmQtYzljYS00ZWU1LWE2N2MtYTQyNzdkY2RmYzVmOlk3ZkcwcU40eUg1bUI3dEYwYUM2alQ2YU8yalgwZFQxYVUybE0xaVMwclM2akIxdlgz'</em><a class="headerlink" href="#mcomm_tools.Scraper.token_access_string" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mcomm_tools.Scraper.token_url">
+<code class="descname">token_url</code><em class="property"> = 'https://apigw.it.umich.edu/um/inst/oauth2/token?grant_type=client_credentials&amp;scope=mcommunity'</em><a class="headerlink" href="#mcomm_tools.Scraper.token_url" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mcomm_tools.Scraper.url">
+<code class="descname">url</code><em class="property"> = 'https://apigw.it.umich.edu/um/MCommunity/People/minisearch/'</em><a class="headerlink" href="#mcomm_tools.Scraper.url" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, John Bell.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.7</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="_sources/mcomm_tools.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,152 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>scripts.scripting_example &#8212; knack_scripts 1.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for scripts.scripting_example</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">knack_tools</span> <span class="k">as</span> <span class="nn">kt</span>
+
+
+<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Scripting Example&quot;</span>
+
+<span class="c1">## Default textbox width is 60 characters.</span>
+<span class="c1">## To keep text from wrapping, it&#39;s best to keep</span>
+<span class="c1">## lines shorter than that.</span>
+<span class="n">description</span> <span class="o">=</span> \
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This is a simple example for writing your own script.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="processing_function"><a class="viewcode-back" href="../../scripts.html#scripts.scripting_example.processing_function">[docs]</a><span class="k">def</span> <span class="nf">processing_function</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is the top-level function for processing data.</span>
+<span class="sd">    </span>
+<span class="sd">    The function is meant to be passed to the importer (in this case GuiIO).</span>
+<span class="sd">    The importer will call this function after it has parsed the raw data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Do some processing</span>
+    <span class="c1">#   Note that there are lots of pre-written selectors in the</span>
+    <span class="c1">#   &quot;knack_tools&quot; package. For example, you could replace</span>
+    <span class="c1">#   &quot;custom_row_selector&quot; with &quot;kt.selectors.all_actives&quot;</span>
+    <span class="c1">#   to get only people currently in the bargaining unit.</span>
+    <span class="n">processed</span> <span class="o">=</span> <span class="n">kt</span><span class="o">.</span><span class="n">filterdata</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">custom_row_selector</span><span class="p">)</span>
+
+    <span class="c1"># Summarize some results &amp; show it on the command prompt</span>
+    <span class="n">nm</span> <span class="o">=</span> <span class="n">kt</span><span class="o">.</span><span class="n">count_duespayers</span><span class="p">(</span><span class="n">processed</span><span class="p">)</span>
+    <span class="n">membership</span> <span class="o">=</span> <span class="n">nm</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">processed</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Membership in selected departments: </span><span class="si">%d%%</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">membership</span><span class="o">*</span><span class="mi">100</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Return the processed data </span>
+    <span class="k">return</span> <span class="n">processed</span></div>
+
+
+
+<div class="viewcode-block" id="custom_row_selector"><a class="viewcode-back" href="../../scripts.html#scripts.scripting_example.custom_row_selector">[docs]</a><span class="k">def</span> <span class="nf">custom_row_selector</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given the dictionary for a single person, decide whether to</span>
+<span class="sd">    pass the data or return None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">select_flag</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1">##############################</span>
+    <span class="c1"># Do whatever checks you want</span>
+    <span class="c1">##############################</span>
+
+    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">kt</span><span class="o">.</span><span class="n">NORTH_CAMPUS_DEPTS</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Department&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">d</span><span class="p">:</span>
+            <span class="n">select_flag</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="c1">##############################</span>
+
+    <span class="c1"># Return</span>
+    <span class="k">if</span> <span class="n">select_flag</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">row</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  <li><a href="../scripts.html">scripts</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, John Bell.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.7</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

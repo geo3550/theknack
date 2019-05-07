@@ -19,11 +19,17 @@ data, copy the following into the "Custom Entry" box
 on the right side of the GUI:
 
 
-Schedule - Course Title,Schedule - Time,Schedule - Term,
-Schedule - Component,Schedule - Days,Schedule - Catalog Nbr,
-Schedule - Subject,Schedule - Location,Schedule - Start Date,
-Schedule - End Date,Schedule - Session,Schedule - Codes,
-Schedule - Acad Group,Schedule - Class Nbr
+Schedule - Course Title,Schedule - Time,Schedule - Term,Schedule - Component,Schedule - Days,Schedule - Catalog Nbr,Schedule - Subject,Schedule - Location,Schedule - Start Date,Schedule - End Date,Schedule - Session,Schedule - Codes,Schedule - Acad Group,Schedule - Class Nbr
+
+Notes:
+
+  - The raw schedule data can be found at:
+
+      https://ro.umich.edu/calendars/schedule-of-classes
+
+  - Currently, the script must be updated to point to the 
+    correct data file by changing the "RO_DATA_FILE" 
+    variable at the top of the file.
 """
 
 # Raw data from Registrar's Office

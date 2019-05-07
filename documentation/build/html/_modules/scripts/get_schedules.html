@@ -1,0 +1,232 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>scripts.get_schedules &#8212; knack_scripts 1.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for scripts.get_schedules</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">knack_tools</span> <span class="k">as</span> <span class="nn">kt</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">date</span>
+
+
+<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Get Schedules&quot;</span>
+
+<span class="c1">## Default textbox width is 60 characters.</span>
+<span class="c1">## To keep text from wrapping, it&#39;s best to keep</span>
+<span class="c1">## lines shorter than that.</span>
+<span class="n">description</span> <span class="o">=</span> \
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This script processes the class schedule information </span>
+<span class="sd">released by the Registrar&#39;s Office and, for the people </span>
+<span class="sd">it can find (the information is usually incomplete), </span>
+<span class="sd">retrieves:</span>
+<span class="sd">  - The class they&#39;re teaching</span>
+<span class="sd">  - The time(s)</span>
+<span class="sd">  - The location</span>
+
+<span class="sd">Notes:</span>
+
+<span class="sd">  - The raw schedule data can be found at:</span>
+
+<span class="sd">      https://ro.umich.edu/calendars/schedule-of-classes</span>
+
+<span class="sd">  - Currently, the script must be updated to point to the </span>
+<span class="sd">    correct data file by changing the &quot;RO_DATA&quot; variable </span>
+<span class="sd">    at the top of the file.</span>
+
+<span class="sd">  - In order to export this information, add the following </span>
+<span class="sd">    to the &quot;Custom Entry&quot; box on the right side of the GUI:</span>
+
+<span class="sd">      Schedule</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># Raw data from Registrar&#39;s Office</span>
+<span class="n">RO_DATA</span>  <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span><span class="o">+</span><span class="s1">&#39;/data/&#39;</span><span class="o">+</span><span class="s1">&#39;ro_schedule_FA2018.csv&#39;</span>
+
+<span class="c1"># File to export all failed matches</span>
+<span class="n">ERROR_FILE</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span><span class="o">+</span><span class="s1">&#39;/results/&#39;</span><span class="o">+</span><span class="s1">&#39;scraper_errors.csv&#39;</span>
+
+
+<div class="viewcode-block" id="processing_function"><a class="viewcode-back" href="../../scripts.html#scripts.get_schedules.processing_function">[docs]</a><span class="k">def</span> <span class="nf">processing_function</span><span class="p">(</span><span class="n">raw</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is the top-level function for processing data.</span>
+<span class="sd">    </span>
+<span class="sd">    The function is meant to be passed to the importer (in this case GuiIO).</span>
+<span class="sd">    The importer will call this function after it has parsed the raw data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">kdata</span> <span class="o">=</span> <span class="n">raw</span>
+
+    <span class="c1"># import Registrar&#39;s Office Schedule information</span>
+    <span class="n">sdata</span> <span class="o">=</span> <span class="n">kt</span><span class="o">.</span><span class="n">importrosched</span><span class="p">(</span><span class="n">RO_DATA</span><span class="p">)</span>
+
+    <span class="c1"># extract schedules for each person and add column to knack data</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">umid</span> <span class="ow">in</span> <span class="n">kdata</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">person</span> <span class="o">=</span> <span class="n">kdata</span><span class="p">[</span><span class="n">umid</span><span class="p">]</span>
+        <span class="n">lname</span> <span class="o">=</span> <span class="n">person</span><span class="p">[</span><span class="s1">&#39;Name: Last&#39;</span><span class="p">]</span>
+
+        <span class="c1"># Grab all schedules with this person&#39;s last name</span>
+        <span class="c1"># (since that&#39;s the only info the registrar gives us)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">schedules</span> <span class="o">=</span> <span class="n">sdata</span><span class="p">[</span><span class="n">lname</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">TAB</span> <span class="o">=</span> <span class="mi">20</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">lname</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">TAB</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">:</span> <span class="n">TAB</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">kdata</span><span class="p">[</span><span class="n">umid</span><span class="p">][</span><span class="s1">&#39;Schedule&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Failed to find:  </span><span class="se">\t</span><span class="s1">&quot;&#39;</span><span class="o">+</span><span class="n">lname</span><span class="o">+</span><span class="s1">&#39;&quot;&#39;</span><span class="o">+</span><span class="s1">&#39; &#39;</span><span class="o">*</span><span class="n">TAB</span><span class="o">+</span><span class="s1">&#39;in department: &#39;</span><span class="o">+</span>\
+                    <span class="n">person</span><span class="p">[</span><span class="s1">&#39;Department&#39;</span><span class="p">]</span>
+            <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">lname</span><span class="p">,</span><span class="n">msg</span><span class="p">])</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Choose most likely from all schedules with that last name</span>
+        <span class="n">schedules</span> <span class="o">=</span> <span class="n">choose_schedule</span><span class="p">(</span><span class="n">person</span><span class="p">,</span><span class="n">schedules</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">schedules</span><span class="p">:</span>
+            <span class="n">TAB</span> <span class="o">=</span> <span class="mi">20</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">lname</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">TAB</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">:</span> <span class="n">TAB</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">kdata</span><span class="p">[</span><span class="n">umid</span><span class="p">][</span><span class="s1">&#39;Schedule&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Failed to choose:</span><span class="se">\t</span><span class="s1">&quot;&#39;</span><span class="o">+</span><span class="n">lname</span><span class="o">+</span><span class="s1">&#39;&quot;&#39;</span><span class="o">+</span><span class="s1">&#39; &#39;</span><span class="o">*</span><span class="n">TAB</span><span class="o">+</span><span class="s1">&#39;in department: &#39;</span><span class="o">+</span>\
+                    <span class="n">person</span><span class="p">[</span><span class="s1">&#39;Department&#39;</span><span class="p">]</span>
+            <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">lname</span><span class="p">,</span><span class="n">msg</span><span class="p">])</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Format result for output</span>
+        <span class="c1"># print(person[&#39;Individual&#39;])</span>
+        <span class="n">hr_schedules</span> <span class="o">=</span> <span class="n">make_human_readable</span><span class="p">(</span><span class="n">schedules</span><span class="p">)</span>
+        <span class="c1"># for s in hr_schedules:</span>
+        <span class="c1">#     print(s)</span>
+        <span class="c1"># print(&#39;\n&#39;)</span>
+
+        <span class="c1"># Add to output data</span>
+        <span class="n">kdata</span><span class="p">[</span><span class="n">umid</span><span class="p">][</span><span class="s1">&#39;Schedule&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hr_schedules</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of failures: &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">errors</span><span class="p">)))</span>
+    <span class="n">kt</span><span class="o">.</span><span class="n">writecsv_summary</span><span class="p">(</span><span class="n">errors</span><span class="p">,</span> <span class="n">ERROR_FILE</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">kdata</span></div>
+
+
+
+<div class="viewcode-block" id="choose_schedule"><a class="viewcode-back" href="../../scripts.html#scripts.get_schedules.choose_schedule">[docs]</a><span class="k">def</span> <span class="nf">choose_schedule</span><span class="p">(</span><span class="n">person</span><span class="p">,</span><span class="n">schedules</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a list of possible schedules, and a person from knack,</span>
+<span class="sd">    return the of schedules that are most likely for that person.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dept_codes</span> <span class="o">=</span> <span class="n">kt</span><span class="o">.</span><span class="n">DEPT_TO_DEPTCODES</span><span class="p">[</span> <span class="n">person</span><span class="p">[</span><span class="s1">&#39;Department&#39;</span><span class="p">]</span> <span class="p">]</span>
+    <span class="k">if</span> <span class="n">person</span><span class="p">[</span><span class="s1">&#39;Name: Last&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;Sanci&#39;</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">dept_codes</span><span class="p">)</span>
+    <span class="c1"># Just naivly check the department for now</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">schedules</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="s1">&#39;Component&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;IND&#39;</span><span class="p">:</span>
+            <span class="c1"># Assume indep. studies are professors;</span>
+            <span class="c1"># filters out some duplicate names without incurring</span>
+            <span class="c1"># too many false negatives (hopefully)</span>
+            <span class="k">continue</span>
+
+        <span class="n">dcode</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="s1">&#39;Subject&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; (&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">dcode</span> <span class="ow">in</span> <span class="n">dept_codes</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+<div class="viewcode-block" id="make_human_readable"><a class="viewcode-back" href="../../scripts.html#scripts.get_schedules.make_human_readable">[docs]</a><span class="k">def</span> <span class="nf">make_human_readable</span><span class="p">(</span><span class="n">schedules</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a list of schedules, output a list of strings of the form:</span>
+<span class="sd">    &#39;EECS 527 DIS: MWF 3-430PM @ 1012 EECS&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">schedules</span><span class="p">:</span>
+        <span class="n">course</span>  <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="s1">&#39;Subject&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; (&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> \
+                  <span class="n">s</span><span class="p">[</span><span class="s1">&#39;Catalog Nbr&#39;</span><span class="p">]</span>
+        <span class="n">ctype</span>   <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="s1">&#39;Component&#39;</span><span class="p">]</span>
+        <span class="n">time</span>    <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span>
+        <span class="n">room</span>    <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="s1">&#39;Location&#39;</span><span class="p">]</span>
+        <span class="n">days</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;M&#39;</span><span class="p">],</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">],</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;W&#39;</span><span class="p">],</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;TH&#39;</span><span class="p">],</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;F&#39;</span><span class="p">],</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;S&#39;</span><span class="p">],</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;SU&#39;</span><span class="p">]])</span>
+
+        <span class="n">this_sched</span> <span class="o">=</span> <span class="n">course</span><span class="o">+</span><span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">ctype</span><span class="o">+</span><span class="s1">&#39;: &#39;</span> <span class="o">+</span> <span class="n">days</span><span class="o">+</span><span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">time</span><span class="o">+</span><span class="s1">&#39; @ &#39;</span> <span class="o">+</span> <span class="n">room</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_sched</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">out</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  <li><a href="../scripts.html">scripts</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, John Bell.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.7</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

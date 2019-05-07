@@ -1,0 +1,421 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>knack_tools package &#8212; knack_scripts 1.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="knack-tools-package">
+<h1>knack_tools package<a class="headerlink" href="#knack-tools-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-knack_tools.constants">
+<span id="knack-tools-constants-module"></span><h2>knack_tools.constants module<a class="headerlink" href="#module-knack_tools.constants" title="Permalink to this headline">¶</a></h2>
+<p>constants.py</p>
+<p>A collection of helpful constants for umich’s knack.</p>
+</div>
+<div class="section" id="module-knack_tools.selectors">
+<span id="knack-tools-selectors-module"></span><h2>knack_tools.selectors module<a class="headerlink" href="#module-knack_tools.selectors" title="Permalink to this headline">¶</a></h2>
+<p>selectors.py
+v0.1</p>
+<p>Selector functions meant to be used for filtering knack data.</p>
+<dl class="function">
+<dt id="knack_tools.selectors.allactives">
+<code class="descclassname">knack_tools.selectors.</code><code class="descname">allactives</code><span class="sig-paren">(</span><em>person</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools/selectors.html#allactives"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.selectors.allactives" title="Permalink to this definition">¶</a></dt>
+<dd><p>If person is currently in the bargaining unit, pass the data.
+Otherwise return None.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.selectors.bydegree">
+<code class="descclassname">knack_tools.selectors.</code><code class="descname">bydegree</code><span class="sig-paren">(</span><em>person</em>, <em>degree_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools/selectors.html#bydegree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.selectors.bydegree" title="Permalink to this definition">¶</a></dt>
+<dd><p>If person is in one of the listed degrees, pass the data.
+Otherwise return None.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.selectors.bydept">
+<code class="descclassname">knack_tools.selectors.</code><code class="descname">bydept</code><span class="sig-paren">(</span><em>person</em>, <em>dept_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools/selectors.html#bydept"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.selectors.bydept" title="Permalink to this definition">¶</a></dt>
+<dd><p>If person is in one of the listed depts, pass the data.
+Otherwise return None.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.selectors.citizen">
+<code class="descclassname">knack_tools.selectors.</code><code class="descname">citizen</code><span class="sig-paren">(</span><em>person</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools/selectors.html#citizen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.selectors.citizen" title="Permalink to this definition">¶</a></dt>
+<dd><p>If person is a citizen, pass the data.
+Otherwise return None.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.selectors.column_is_empty">
+<code class="descclassname">knack_tools.selectors.</code><code class="descname">column_is_empty</code><span class="sig-paren">(</span><em>person</em>, <em>column</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools/selectors.html#column_is_empty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.selectors.column_is_empty" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.selectors.duespayers">
+<code class="descclassname">knack_tools.selectors.</code><code class="descname">duespayers</code><span class="sig-paren">(</span><em>person</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools/selectors.html#duespayers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.selectors.duespayers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.selectors.engineers">
+<code class="descclassname">knack_tools.selectors.</code><code class="descname">engineers</code><span class="sig-paren">(</span><em>person</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools/selectors.html#engineers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.selectors.engineers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.selectors.hiredafter">
+<code class="descclassname">knack_tools.selectors.</code><code class="descname">hiredafter</code><span class="sig-paren">(</span><em>person</em>, <em>hiredate</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools/selectors.html#hiredafter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.selectors.hiredafter" title="Permalink to this definition">¶</a></dt>
+<dd><p>If person was hired after ‘hiredate’, pass the data.
+Otherwise return None.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.selectors.hiredbefore">
+<code class="descclassname">knack_tools.selectors.</code><code class="descname">hiredbefore</code><span class="sig-paren">(</span><em>person</em>, <em>hiredate</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools/selectors.html#hiredbefore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.selectors.hiredbefore" title="Permalink to this definition">¶</a></dt>
+<dd><p>If person was hired after ‘hiredate’, pass the data.
+Otherwise return None.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.selectors.itnl">
+<code class="descclassname">knack_tools.selectors.</code><code class="descname">itnl</code><span class="sig-paren">(</span><em>person</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools/selectors.html#itnl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.selectors.itnl" title="Permalink to this definition">¶</a></dt>
+<dd><p>If person is an international student, pass the data.
+Otherwise return None.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.selectors.nohiredate">
+<code class="descclassname">knack_tools.selectors.</code><code class="descname">nohiredate</code><span class="sig-paren">(</span><em>person</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools/selectors.html#nohiredate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.selectors.nohiredate" title="Permalink to this definition">¶</a></dt>
+<dd><p>If person doesn’t have a hire date, pass the data.
+Otherwise return None.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.selectors.nonpayers">
+<code class="descclassname">knack_tools.selectors.</code><code class="descname">nonpayers</code><span class="sig-paren">(</span><em>person</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools/selectors.html#nonpayers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.selectors.nonpayers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.selectors.northcampus">
+<code class="descclassname">knack_tools.selectors.</code><code class="descname">northcampus</code><span class="sig-paren">(</span><em>person</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools/selectors.html#northcampus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.selectors.northcampus" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.selectors.permres">
+<code class="descclassname">knack_tools.selectors.</code><code class="descname">permres</code><span class="sig-paren">(</span><em>person</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools/selectors.html#permres"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.selectors.permres" title="Permalink to this definition">¶</a></dt>
+<dd><p>If person is a permanent resident, pass the data.
+Otherwise return None.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-knack_tools">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-knack_tools" title="Permalink to this headline">¶</a></h2>
+<p>knack_tools.py
+v0.2</p>
+<p>This is a library of tools that can be used to more easily 
+&amp; consistently work with data from Knack.</p>
+<dl class="docutils">
+<dt>‘data’ organization:</dt>
+<dd><p class="first">The outer level is a dictionary, each key is a UMID (as a string).</p>
+<p>Corresponding to each UMID is another dictionary of every column
+in the input file (except “Employer ID”). For example:</p>
+<dl class="docutils">
+<dt>data = {</dt>
+<dd>‘93819370’: {‘Name: First’:’Foo’,   ‘Name: Last’:’Bar’},
+‘83927489’: {‘Name: First’:’Josie’, ‘Name: Last’:’Cat’}</dd>
+</dl>
+<p class="last">}</p>
+</dd>
+</dl>
+<dl class="class">
+<dt id="knack_tools.AutomaticIO">
+<em class="property">class </em><code class="descclassname">knack_tools.</code><code class="descname">AutomaticIO</code><span class="sig-paren">(</span><em>in_filename</em>, <em>processing_fn</em>, <em>export_header</em>, <em>out_filename='out.csv'</em>, <em>master=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#AutomaticIO"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.AutomaticIO" title="Permalink to this definition">¶</a></dt>
+<dd><p>Imports, processes, and exports Knack data from given file.</p>
+<dl class="class">
+<dt id="knack_tools.AutomaticIO.m">
+<em class="property">class </em><code class="descname">m</code><a class="reference internal" href="_modules/knack_tools.html#AutomaticIO.m"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.AutomaticIO.m" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dummy class to make the interface similar to GuiIO</p>
+<dl class="method">
+<dt id="knack_tools.AutomaticIO.m.title">
+<code class="descname">title</code><span class="sig-paren">(</span><em>txt</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#AutomaticIO.m.title"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.AutomaticIO.m.title" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="method">
+<dt id="knack_tools.AutomaticIO.mainloop">
+<code class="descname">mainloop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#AutomaticIO.mainloop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.AutomaticIO.mainloop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="knack_tools.GuiIO">
+<em class="property">class </em><code class="descclassname">knack_tools.</code><code class="descname">GuiIO</code><span class="sig-paren">(</span><em>processing_fn</em>, <em>export_header</em>, <em>out_filename='./out.csv'</em>, <em>master=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#GuiIO"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.GuiIO" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Tkinter.Frame</span></code></p>
+<p>Creates Simple GUI to import, process, and export Knack data.</p>
+<dl class="method">
+<dt id="knack_tools.GuiIO.createWidgets">
+<code class="descname">createWidgets</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#GuiIO.createWidgets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.GuiIO.createWidgets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="knack_tools.GuiIO.getfilename">
+<code class="descname">getfilename</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#GuiIO.getfilename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.GuiIO.getfilename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="knack_tools.GuiIO.process">
+<code class="descname">process</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#GuiIO.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.GuiIO.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="knack_tools.ScriptingWindow">
+<em class="property">class </em><code class="descclassname">knack_tools.</code><code class="descname">ScriptingWindow</code><span class="sig-paren">(</span><em>available_scripts</em>, <em>title='Knack Scripts'</em>, <em>master=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#ScriptingWindow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.ScriptingWindow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Tkinter.Frame</span></code></p>
+<p>Builds out what you see on the screen.</p>
+<dl class="method">
+<dt id="knack_tools.ScriptingWindow.createWidgets">
+<code class="descname">createWidgets</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#ScriptingWindow.createWidgets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.ScriptingWindow.createWidgets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="knack_tools.ScriptingWindow.get_export_header">
+<code class="descname">get_export_header</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#ScriptingWindow.get_export_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.ScriptingWindow.get_export_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of all headers that are selected with checkboxes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="knack_tools.ScriptingWindow.get_processing_function">
+<code class="descname">get_processing_function</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#ScriptingWindow.get_processing_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.ScriptingWindow.get_processing_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the selected script’s processing function</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="knack_tools.ScriptingWindow.getfilename_input">
+<code class="descname">getfilename_input</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#ScriptingWindow.getfilename_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.ScriptingWindow.getfilename_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the contents of the input file dialog box</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="knack_tools.ScriptingWindow.getfilename_output">
+<code class="descname">getfilename_output</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#ScriptingWindow.getfilename_output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.ScriptingWindow.getfilename_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the contents of the outut file dialog box</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="knack_tools.ScriptingWindow.initWindow">
+<code class="descname">initWindow</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#ScriptingWindow.initWindow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.ScriptingWindow.initWindow" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="knack_tools.ScriptingWindow.run_script">
+<code class="descname">run_script</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#ScriptingWindow.run_script"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.ScriptingWindow.run_script" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the top-level processing function.</p>
+<p>It is called when the “Process File” button is pressed
+and does the following:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>import data from csv</li>
+<li>run selected processing script on data</li>
+<li>export results to csv</li>
+</ol>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="knack_tools.ScriptingWindow.setstatus">
+<code class="descname">setstatus</code><span class="sig-paren">(</span><em>status</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#ScriptingWindow.setstatus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.ScriptingWindow.setstatus" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.count_duespayers">
+<code class="descclassname">knack_tools.</code><code class="descname">count_duespayers</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#count_duespayers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.count_duespayers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.count_nonpayers">
+<code class="descclassname">knack_tools.</code><code class="descname">count_nonpayers</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#count_nonpayers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.count_nonpayers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.filterdata">
+<code class="descclassname">knack_tools.</code><code class="descname">filterdata</code><span class="sig-paren">(</span><em>data</em>, <em>selector_fn</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#filterdata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.filterdata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a dictionary of people, call ‘selector_fn’ for each person      
+and remove any entries that return ‘None’</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.importcsv">
+<code class="descclassname">knack_tools.</code><code class="descname">importcsv</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#importcsv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.importcsv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read in raw data from csv file and parse into a dictionary.</p>
+<dl class="docutils">
+<dt>The dictionary is structured as: </dt>
+<dd>{“umid”: {“column_name”: “column_data”}}. So, each element</dd>
+</dl>
+<p>in the dictionary is all of the data for the person with this umid.
+The data is a dictionary where each element is a different column.
+So, getting a person’s membership status would look like:</p>
+<blockquote>
+<div>data[“93048579”][“Membership Status”]</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.importrosched">
+<code class="descclassname">knack_tools.</code><code class="descname">importrosched</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#importrosched"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.importrosched" title="Permalink to this definition">¶</a></dt>
+<dd><p>Import class schedule data from Registrar’s Office.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.importstews">
+<code class="descclassname">knack_tools.</code><code class="descname">importstews</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#importstews"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.importstews" title="Permalink to this definition">¶</a></dt>
+<dd><p>Import raw data from Stewards’ list</p>
+<p>To get the stews list, go to the “Stewards’” group in Knack
+and export the whole list.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.parsebyid">
+<code class="descclassname">knack_tools.</code><code class="descname">parsebyid</code><span class="sig-paren">(</span><em>lines</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#parsebyid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.parsebyid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given raw data, parse each line into a dictionary representing
+that person’s data, then return a dictionary of each person,
+using UMIDs as the keys.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.parserosched">
+<code class="descclassname">knack_tools.</code><code class="descname">parserosched</code><span class="sig-paren">(</span><em>lines</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#parserosched"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.parserosched" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given raw export of registrar’s office schedule 
+(found at: <a class="reference external" href="http://ro.umich.edu/schedule/">http://ro.umich.edu/schedule/</a>), parse each line
+into a dictionary with instructor of the form:</p>
+<blockquote>
+<div>{last_name: [row_data0 row_data1 …]}</div></blockquote>
+<p>where each ‘row_data’ represents a row with the same instructor
+last name and is encoded as a dictionary of the form:</p>
+<blockquote>
+<div>{column label: data}</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.parsestews">
+<code class="descclassname">knack_tools.</code><code class="descname">parsestews</code><span class="sig-paren">(</span><em>lines</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#parsestews"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.parsestews" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given raw export of stews list,
+parse each line into a dictionary with departments as keys
+and a list of stewards’ names as values.</p>
+<p>To get the stews list, go to the “Stewards’” group in Knack
+and export the whole list.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.remove_prefix">
+<code class="descclassname">knack_tools.</code><code class="descname">remove_prefix</code><span class="sig-paren">(</span><em>s</em>, <em>prefix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#remove_prefix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.remove_prefix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.writecsv_byid">
+<code class="descclassname">knack_tools.</code><code class="descname">writecsv_byid</code><span class="sig-paren">(</span><em>data_to_write</em>, <em>export_header</em>, <em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#writecsv_byid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.writecsv_byid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes any parsed Knack data and exports it to “filename” as csv.</p>
+<dl class="docutils">
+<dt>“export_header” is a list of which columns should be exported.</dt>
+<dd><ol class="first last arabic simple">
+<li>if export_header == None:         do nothing.</li>
+<li>if export_header == “all fields”: write all data in data_to_write.</li>
+<li><dl class="first docutils">
+<dt>otherwise:                        write only columns with the</dt>
+<dd>names specified in 
+“export_header”</dd>
+</dl>
+</li>
+</ol>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.writecsv_summary">
+<code class="descclassname">knack_tools.</code><code class="descname">writecsv_summary</code><span class="sig-paren">(</span><em>data_to_write</em>, <em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#writecsv_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.writecsv_summary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, John Bell.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.7</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="_sources/knack_tools.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

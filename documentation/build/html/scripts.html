@@ -1,0 +1,217 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>scripts package &#8212; knack_scripts 1.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="scripts-package">
+<h1>scripts package<a class="headerlink" href="#scripts-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-scripts.employment_history">
+<span id="scripts-employment-history-module"></span><h2>scripts.employment_history module<a class="headerlink" href="#module-scripts.employment_history" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.employment_history.processing_function">
+<code class="descclassname">scripts.employment_history.</code><code class="descname">processing_function</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/employment_history.html#processing_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.employment_history.processing_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the top-level function for processing data.</p>
+<p>The function is meant to be passed to the importer (in this case GuiIO).
+The importer will call this function after it has parsed the raw data.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.employment_history.str_2col">
+<code class="descclassname">scripts.employment_history.</code><code class="descname">str_2col</code><span class="sig-paren">(</span><em>text1</em>, <em>text2</em>, <em>tabwidth</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/employment_history.html#str_2col"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.employment_history.str_2col" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-scripts.get_schedules">
+<span id="scripts-get-schedules-module"></span><h2>scripts.get_schedules module<a class="headerlink" href="#module-scripts.get_schedules" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.get_schedules.choose_schedule">
+<code class="descclassname">scripts.get_schedules.</code><code class="descname">choose_schedule</code><span class="sig-paren">(</span><em>person</em>, <em>schedules</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/get_schedules.html#choose_schedule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.get_schedules.choose_schedule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a list of possible schedules, and a person from knack,
+return the of schedules that are most likely for that person.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.get_schedules.make_human_readable">
+<code class="descclassname">scripts.get_schedules.</code><code class="descname">make_human_readable</code><span class="sig-paren">(</span><em>schedules</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/get_schedules.html#make_human_readable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.get_schedules.make_human_readable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a list of schedules, output a list of strings of the form:
+‘EECS 527 DIS: MWF 3-430PM &#64; 1012 EECS’</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.get_schedules.processing_function">
+<code class="descclassname">scripts.get_schedules.</code><code class="descname">processing_function</code><span class="sig-paren">(</span><em>raw</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/get_schedules.html#processing_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.get_schedules.processing_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the top-level function for processing data.</p>
+<p>The function is meant to be passed to the importer (in this case GuiIO).
+The importer will call this function after it has parsed the raw data.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-scripts.get_schedules_for_import">
+<span id="scripts-get-schedules-for-import-module"></span><h2>scripts.get_schedules_for_import module<a class="headerlink" href="#module-scripts.get_schedules_for_import" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.get_schedules_for_import.choose_schedule">
+<code class="descclassname">scripts.get_schedules_for_import.</code><code class="descname">choose_schedule</code><span class="sig-paren">(</span><em>person</em>, <em>schedules</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/get_schedules_for_import.html#choose_schedule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.get_schedules_for_import.choose_schedule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a list of possible schedules, and a person from knack,
+return the of schedules that are most likely for that person.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.get_schedules_for_import.make_human_readable">
+<code class="descclassname">scripts.get_schedules_for_import.</code><code class="descname">make_human_readable</code><span class="sig-paren">(</span><em>schedules</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/get_schedules_for_import.html#make_human_readable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.get_schedules_for_import.make_human_readable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a list of schedules, output a list of strings of the form:
+‘EECS 527 DIS: MWF 3-430PM &#64; 1012 EECS’</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.get_schedules_for_import.processing_function">
+<code class="descclassname">scripts.get_schedules_for_import.</code><code class="descname">processing_function</code><span class="sig-paren">(</span><em>raw</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/get_schedules_for_import.html#processing_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.get_schedules_for_import.processing_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the top-level function for processing data.</p>
+<p>The function is meant to be passed to the importer (in this case GuiIO).
+The importer will call this function after it has parsed the raw data.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="scripts-nc-summary-module">
+<h2>scripts.nc_summary module<a class="headerlink" href="#scripts-nc-summary-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-scripts.scrape_enrollment">
+<span id="scripts-scrape-enrollment-module"></span><h2>scripts.scrape_enrollment module<a class="headerlink" href="#module-scripts.scrape_enrollment" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.scrape_enrollment.processing_function">
+<code class="descclassname">scripts.scrape_enrollment.</code><code class="descname">processing_function</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/scrape_enrollment.html#processing_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.scrape_enrollment.processing_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the top-level function for processing data.</p>
+<p>The function is meant to be passed to the importer (in this case GuiIO).
+The importer will call this function after it has parsed the raw data.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-scripts.scraper">
+<span id="scripts-scraper-module"></span><h2>scripts.scraper module<a class="headerlink" href="#module-scripts.scraper" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.scraper.processing_function">
+<code class="descclassname">scripts.scraper.</code><code class="descname">processing_function</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/scraper.html#processing_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.scraper.processing_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the top-level function for processing data.</p>
+<p>The function is meant to be passed to the importer (in this case GuiIO).
+The importer will call this function after it has parsed the raw data.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-scripts.scripting_example">
+<span id="scripts-scripting-example-module"></span><h2>scripts.scripting_example module<a class="headerlink" href="#module-scripts.scripting_example" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.scripting_example.custom_row_selector">
+<code class="descclassname">scripts.scripting_example.</code><code class="descname">custom_row_selector</code><span class="sig-paren">(</span><em>row</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/scripting_example.html#custom_row_selector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.scripting_example.custom_row_selector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given the dictionary for a single person, decide whether to
+pass the data or return None.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.scripting_example.processing_function">
+<code class="descclassname">scripts.scripting_example.</code><code class="descname">processing_function</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/scripting_example.html#processing_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.scripting_example.processing_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the top-level function for processing data.</p>
+<p>The function is meant to be passed to the importer (in this case GuiIO).
+The importer will call this function after it has parsed the raw data.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="scripts-summary-module">
+<h2>scripts.summary module<a class="headerlink" href="#scripts-summary-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-scripts">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-scripts" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="scripts.Script">
+<em class="property">class </em><code class="descclassname">scripts.</code><code class="descname">Script</code><span class="sig-paren">(</span><em>name</em>, <em>description</em>, <em>processing_function</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts.html#Script"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.Script" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple container that holds all the info associated with a script.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.import_scripts">
+<code class="descclassname">scripts.</code><code class="descname">import_scripts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts.html#import_scripts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.import_scripts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of Script objects corresponding to all available scripts 
+in the “scripts” directory.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, John Bell.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.7</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="_sources/scripts.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,273 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>mcomm_tools &#8212; knack_scripts 1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for mcomm_tools</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Mcommunity Scraper Tool</span>
+<span class="sd">v0.1</span>
+
+<span class="sd">Note: If you don&#39;t have the &quot;config.py&quot; file in this folder,</span>
+<span class="sd">      you need to get it from a staff member (or someone on </span>
+<span class="sd">      the tech committee). This is for security.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">config</span>
+<span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Can</span><span class="se">\&#39;</span><span class="s1">t find access tokens for Mcommunity. </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">+</span>
+                <span class="s1">&#39;You must request tokens from the tech committee &#39;</span><span class="o">+</span>
+                <span class="s1">&#39;to run the scraper tool.&#39;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">urllib</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+
+<span class="kn">import</span> <span class="nn">knack_tools</span> <span class="k">as</span> <span class="nn">kt</span>
+
+<span class="c1">## TO DO: It&#39;d be nice to reference the main &#39;constants.py&#39; file for this</span>
+<span class="c1">##          rather than duplicating it...</span>
+<span class="n">MASTERS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;MHSA&quot;</span><span class="p">,</span><span class="s2">&quot;MLArch&quot;</span><span class="p">,</span> <span class="s2">&quot;DNP&quot;</span> <span class="p">,</span> <span class="s2">&quot;MUP&quot;</span><span class="p">,</span> <span class="s2">&quot;MHI&quot;</span><span class="p">,</span> <span class="s2">&quot;MSW&quot;</span><span class="p">,</span> <span class="s2">&quot;MFA&quot;</span><span class="p">,</span> <span class="s2">&quot;AMusD&quot;</span><span class="p">,</span> <span class="s2">&quot;MBA&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;MPH&quot;</span><span class="p">,</span> <span class="s2">&quot;MAcc&quot;</span><span class="p">,</span> <span class="s2">&quot;MPP&quot;</span><span class="p">,</span> <span class="s2">&quot;MArch&quot;</span><span class="p">,</span> <span class="s2">&quot;MSE&quot;</span><span class="p">,</span> <span class="s2">&quot;MEng&quot;</span><span class="p">,</span> <span class="s2">&quot;MSI&quot;</span><span class="p">,</span> <span class="s2">&quot;MS&quot;</span><span class="p">,</span> <span class="s2">&quot;MA&quot;</span><span class="p">}</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1"># Mcommunity Scraper Tool</span>
+<span class="c1">###############################################################################</span>
+
+
+<div class="viewcode-block" id="Scraper"><a class="viewcode-back" href="../mcomm_tools.html#mcomm_tools.Scraper">[docs]</a><span class="k">class</span> <span class="nc">Scraper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Connects to m-community and looks up information&quot;&quot;&quot;</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://apigw.it.umich.edu/um/MCommunity/People/minisearch/&quot;</span>
+
+    <span class="c1">## I&#39;ve had to switch the token url at least twice and I&#39;m not sure why.</span>
+    <span class="c1">## If you&#39;re having trouble getting tokens, try switching this.</span>
+    <span class="c1"># token_url = (&quot;https://apigw.it.umich.edu/um/bf/oauth2/token&quot;</span>
+    <span class="c1">#              &quot;?grant_type=client_credentials&amp;scope=mcommunity&quot;)</span>
+    <span class="n">token_url</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;https://apigw.it.umich.edu/um/inst/oauth2/token&quot;</span>
+                 <span class="s2">&quot;?grant_type=client_credentials&amp;scope=mcommunity&quot;</span><span class="p">)</span>
+
+    <span class="n">client_id</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">client_id</span>
+    <span class="n">client_secret</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">client_secret</span>
+    <span class="n">token_access_string</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">client_id</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">client_secret</span><span class="p">)</span>
+
+    <span class="n">token_access_header</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Authorization&#39;</span><span class="p">:</span> <span class="s1">&#39;Basic &#39;</span> <span class="o">+</span> <span class="n">token_access_string</span><span class="p">}</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="c1">###########################################</span>
+    <span class="c1"># M-Community API methods</span>
+    <span class="c1">###########################################</span>
+
+    <span class="k">def</span> <span class="nf">_apicall</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">access_token</span><span class="p">,</span> <span class="n">client_id</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Makes basic apicalls to the mcommunity&quot;&quot;&quot;</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Authorization&#39;</span><span class="p">:</span> <span class="s1">&#39;Bearer &#39;</span> <span class="o">+</span> <span class="n">access_token</span><span class="p">,</span>
+                  <span class="s1">&#39;X-IBM-Client-Id&#39;</span><span class="p">:</span> <span class="n">client_id</span><span class="p">}</span>
+
+        <span class="c1"># Need to sanitize the query b/c it gets put</span>
+        <span class="c1"># straight into a url</span>
+        <span class="n">clean_query</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">))</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="o">+</span><span class="n">clean_query</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">header</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span> <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span> <span class="k">return</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="Scraper.querydb"><a class="viewcode-back" href="../mcomm_tools.html#mcomm_tools.Scraper.querydb">[docs]</a>    <span class="k">def</span> <span class="nf">querydb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">query</span><span class="p">):</span>
+        <span class="n">token_call</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">token_url</span><span class="p">,</span>
+                            <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">token_access_header</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">access_token</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">token_call</span><span class="p">[</span><span class="s1">&#39;access_token&#39;</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">token_call</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Error getting Mcommunity tokens. Try &#39;</span><span class="o">+</span>
+                            <span class="s1">&#39;switching the token_url.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apicall</span><span class="p">(</span><span class="n">access_token</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_id</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span></div>
+
+
+    <span class="c1">###########################################</span>
+    <span class="c1"># Response Processing methods</span>
+    <span class="c1">###########################################</span>
+
+<div class="viewcode-block" id="Scraper.choose_person"><a class="viewcode-back" href="../mcomm_tools.html#mcomm_tools.Scraper.choose_person">[docs]</a>    <span class="k">def</span> <span class="nf">choose_person</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query_result</span><span class="p">,</span> <span class="n">knack_result</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given the json from an mcommunity api call, compare as many pieces </span>
+<span class="sd">        of information we have and choose the one that has the highest </span>
+<span class="sd">        match %. Return chosen person.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Returns list of all elements in &#39;l&#39; that contain the string &#39;s&#39;</span>
+        <span class="n">findstr_inlist</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">,</span><span class="n">l</span><span class="p">:</span> <span class="p">[</span> <span class="n">ii</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">l</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">ii</span> <span class="p">]</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">people</span> <span class="o">=</span> <span class="n">query_result</span><span class="p">[</span><span class="s1">&#39;person&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Didn&#39;t receive a valid mcommunity response:&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">query_result</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">people</span><span class="p">:</span>
+            <span class="n">knack_count</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">query_count</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="c1"># Check Employment Status</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">knack_result</span><span class="p">[</span><span class="s1">&#39;Employment Status&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;Active&#39;</span><span class="p">:</span>
+                    <span class="n">knack_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">matches</span> <span class="o">=</span> <span class="n">findstr_inlist</span><span class="p">(</span>
+                                <span class="s1">&#39;Graduate Student Instructor&#39;</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span>
+                                <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">matches</span><span class="p">:</span>
+                        <span class="n">query_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+            <span class="c1"># Check for Department Name in various places</span>
+            <span class="c1"># TO DO: make dictionary linking knack depts to mcommunity depts</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">knack_result</span><span class="p">[</span><span class="s1">&#39;Department&#39;</span><span class="p">]:</span>
+                    <span class="n">knack_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">matches</span> <span class="o">=</span> <span class="n">findstr_inlist</span><span class="p">(</span>
+                                <span class="n">knack_result</span><span class="p">[</span><span class="s1">&#39;Department&#39;</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span>
+                                <span class="p">)</span>
+                    <span class="n">matches</span> <span class="o">=</span> <span class="n">matches</span><span class="o">+</span><span class="n">findstr_inlist</span><span class="p">(</span>
+                                <span class="n">knack_result</span><span class="p">[</span><span class="s1">&#39;Department&#39;</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;affiliations&#39;</span><span class="p">]</span>
+                                <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">matches</span><span class="p">:</span>
+                        <span class="n">query_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+            <span class="c1"># Check against known uniqname</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">knack_result</span><span class="p">[</span><span class="s1">&#39;Employer Unique Name&#39;</span><span class="p">]:</span>
+                    <span class="n">knack_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;uniqname&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">knack_result</span><span class="p">[</span><span class="s1">&#39;Employer Unique Name&#39;</span><span class="p">]:</span>
+                        <span class="n">query_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">knack_count</span><span class="p">:</span> 
+                <span class="k">break</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="n">scores</span><span class="o">+</span><span class="p">[</span><span class="n">query_count</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">knack_count</span><span class="p">)]</span>
+
+        <span class="c1"># If we don&#39;t know anything about this person, make a naive choice</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">scores</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">people</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="n">people</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span> <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Check for multiple matches</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="p">[</span><span class="n">ii</span> <span class="k">for</span> <span class="n">ii</span><span class="p">,</span><span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span> <span class="k">if</span> <span class="n">s</span><span class="o">==</span><span class="nb">max</span><span class="p">(</span><span class="n">scores</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span> 
+            <span class="c1"># for p in people:</span>
+            <span class="c1">#     print(p)</span>
+            <span class="c1">#     print(&#39;\n&#39;)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">scores</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+
+        <span class="c1"># Otherwise, let&#39;s choose the best score:</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">people</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">scores</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Scraper.getenrolled"><a class="viewcode-back" href="../mcomm_tools.html#mcomm_tools.Scraper.getenrolled">[docs]</a>    <span class="k">def</span> <span class="nf">getenrolled</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">person</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span><span class="n">affiliations</span> <span class="o">=</span> <span class="n">person</span><span class="p">[</span><span class="sa">u</span><span class="s1">&#39;affiliation&#39;</span><span class="p">]</span>
+        <span class="k">except</span><span class="p">:</span><span class="k">return</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">]</span>
+        <span class="n">stud</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;Student&quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">,</span> <span class="n">affiliations</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">stud</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;PhD&quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">x</span><span class="p">[:</span><span class="o">-</span><span class="mi">14</span><span class="p">],</span> <span class="s2">&quot;PhD&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">stud</span><span class="p">:</span>
+            <span class="c1"># for m in MASTERS:</span>
+            <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">kt</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">MASTERS</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="p">[</span><span class="n">x</span><span class="p">[:</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">m</span><span class="p">)],</span> <span class="n">m</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">stud</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;Law&quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;Law&quot;</span><span class="p">,</span> <span class="s2">&quot;JD&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">stud</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;Doc&quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;School of Information&quot;</span><span class="p">,</span> <span class="s2">&quot;PhD&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;Unknown&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">]</span></div></div>
+
+
+
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, John Bell.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.7</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

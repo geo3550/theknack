@@ -1,0 +1,851 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>knack_tools &#8212; knack_scripts 1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for knack_tools</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">knack_tools.py</span>
+<span class="sd">v0.2</span>
+
+<span class="sd">This is a library of tools that can be used to more easily </span>
+<span class="sd">&amp; consistently work with data from Knack.</span>
+
+<span class="sd">&#39;data&#39; organization:</span>
+<span class="sd">    The outer level is a dictionary, each key is a UMID (as a string).</span>
+
+<span class="sd">    Corresponding to each UMID is another dictionary of every column</span>
+<span class="sd">    in the input file (except &quot;Employer ID&quot;). For example:</span>
+
+<span class="sd">    data = {</span>
+<span class="sd">      &#39;93819370&#39;: {&#39;Name: First&#39;:&#39;Foo&#39;,   &#39;Name: Last&#39;:&#39;Bar&#39;},</span>
+<span class="sd">      &#39;83927489&#39;: {&#39;Name: First&#39;:&#39;Josie&#39;, &#39;Name: Last&#39;:&#39;Cat&#39;}</span>
+<span class="sd">    }</span>
+
+<span class="sd">&quot;&quot;&quot;</span> 
+
+
+<span class="kn">from</span> <span class="nn">Tkinter</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">tkFileDialog</span>
+<span class="kn">from</span> <span class="nn">ScrolledText</span> <span class="k">import</span> <span class="n">ScrolledText</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">unicodecsv</span> <span class="k">as</span> <span class="nn">csv</span>
+
+<span class="c1"># import csv</span>
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="n">BytesIO</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">copy</span>
+
+<span class="c1"># local modules</span>
+<span class="kn">import</span> <span class="nn">selectors</span>
+<span class="kn">from</span> <span class="nn">constants</span> <span class="k">import</span> <span class="o">*</span>
+
+
+
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1"># Data Processing Functions</span>
+<span class="c1">###############################################################################</span>
+
+
+<div class="viewcode-block" id="count_duespayers"><a class="viewcode-back" href="../knack_tools.html#knack_tools.count_duespayers">[docs]</a><span class="k">def</span> <span class="nf">count_duespayers</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">ii</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;Member Status&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Union Dues&#39;</span><span class="p">:</span> <span class="n">ii</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">ii</span></div>
+
+<div class="viewcode-block" id="count_nonpayers"><a class="viewcode-back" href="../knack_tools.html#knack_tools.count_nonpayers">[docs]</a><span class="k">def</span> <span class="nf">count_nonpayers</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">ii</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;Member Status&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Non-Payer&#39;</span><span class="p">:</span> <span class="n">ii</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">ii</span></div>
+
+
+
+
+
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1"># File I/O</span>
+<span class="c1">###############################################################################</span>
+
+<div class="viewcode-block" id="filterdata"><a class="viewcode-back" href="../knack_tools.html#knack_tools.filterdata">[docs]</a><span class="k">def</span> <span class="nf">filterdata</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">selector_fn</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a dictionary of people, call &#39;selector_fn&#39; for each person      </span>
+<span class="sd">    and remove any entries that return &#39;None&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># First, decide whether or not to keep each row</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="nb">id</span><span class="p">:</span> <span class="n">selector_fn</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
+
+    <span class="c1"># Then, remove the entries left empty by &#39;selector_fn&#39;</span>
+    <span class="n">filtered_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">filtered_data</span></div>
+
+ 
+<div class="viewcode-block" id="parsebyid"><a class="viewcode-back" href="../knack_tools.html#knack_tools.parsebyid">[docs]</a><span class="k">def</span> <span class="nf">parsebyid</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given raw data, parse each line into a dictionary representing</span>
+<span class="sd">    that person&#39;s data, then return a dictionary of each person,</span>
+<span class="sd">    using UMIDs as the keys.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Sanitize column labels and find the UMID column</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="p">[</span><span class="n">elt</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="n">id_index</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;Employee ID&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Remove &#39;3550&#39; prefix from everything</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+        <span class="n">lines</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">remove_prefix</span><span class="p">(</span><span class="n">elt</span><span class="p">,</span><span class="s1">&#39;3550.&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">line</span><span class="p">]</span>
+    
+    <span class="c1"># Create dictionary for each person</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="n">header</span>
+    <span class="k">del</span> <span class="n">keys</span><span class="p">[</span><span class="n">id_index</span><span class="p">]</span>
+    <span class="n">ids</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="n">ids</span><span class="o">+</span><span class="p">[</span> <span class="n">line</span><span class="p">[</span><span class="n">id_index</span><span class="p">]</span> <span class="p">]</span>
+        <span class="k">del</span> <span class="n">line</span><span class="p">[</span><span class="n">id_index</span><span class="p">]</span>
+
+        <span class="n">datum</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span><span class="n">line</span><span class="p">))</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">+</span><span class="p">[</span> <span class="n">datum</span> <span class="p">]</span>
+
+    <span class="c1"># Create overall dictionary of all the people</span>
+    <span class="c1"># We end up with this structure:</span>
+    <span class="c1"># data{umid}               =&gt; all data for specific person.</span>
+    <span class="c1"># data{umid}{column_label} =&gt; &quot;column_label&quot; data for specific person.</span>
+    <span class="c1">#                             (e.g. &quot;Member Status&quot;)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span><span class="n">data</span><span class="p">)),</span> <span class="n">header</span><span class="p">,</span> <span class="n">ids</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="remove_prefix"><a class="viewcode-back" href="../knack_tools.html#knack_tools.remove_prefix">[docs]</a><span class="k">def</span> <span class="nf">remove_prefix</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="n">prefix</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">s</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">):]</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="k">else</span> <span class="n">s</span></div>
+
+ 
+<div class="viewcode-block" id="parsestews"><a class="viewcode-back" href="../knack_tools.html#knack_tools.parsestews">[docs]</a><span class="k">def</span> <span class="nf">parsestews</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given raw export of stews list,</span>
+<span class="sd">    parse each line into a dictionary with departments as keys</span>
+<span class="sd">    and a list of stewards&#39; names as values.</span>
+
+<span class="sd">    To get the stews list, go to the &quot;Stewards&#39;&quot; group in Knack</span>
+<span class="sd">    and export the whole list.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Sanitize column labels and find the Depatment column</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="p">[</span><span class="n">elt</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+
+    <span class="c1"># There&#39;s actually 2 &quot;Department&quot; columns in the Stewards list</span>
+    <span class="n">dept_index</span> <span class="o">=</span> <span class="p">[</span><span class="n">ii</span> <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">header</span><span class="p">)</span> <span class="k">if</span> <span class="n">h</span><span class="o">==</span><span class="s1">&#39;Department&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">name_index</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;Name&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Create unduplicated list of all stewarded departments</span>
+    <span class="n">depts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">({</span><span class="n">line</span><span class="p">[</span><span class="n">dept_index</span><span class="p">]</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:]})</span>
+    <span class="c1"># Initialize dictionary with empty lists for each departmet</span>
+    <span class="n">stews</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">depts</span><span class="p">,[[]]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">depts</span><span class="p">)))</span>
+
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">[</span><span class="n">dept_index</span><span class="p">]:</span>
+            <span class="k">continue</span>
+        <span class="n">stews</span><span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="n">dept_index</span><span class="p">]]</span> <span class="o">=</span> <span class="n">stews</span><span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="n">dept_index</span><span class="p">]]</span> <span class="o">+</span> <span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="n">name_index</span><span class="p">]]</span>
+
+    <span class="c1"># Remove unassigned stewards (these are typ. ex-stews)</span>
+    <span class="k">del</span> <span class="n">stews</span><span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">stews</span></div>
+
+
+<div class="viewcode-block" id="parserosched"><a class="viewcode-back" href="../knack_tools.html#knack_tools.parserosched">[docs]</a><span class="k">def</span> <span class="nf">parserosched</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given raw export of registrar&#39;s office schedule </span>
+<span class="sd">    (found at: http://ro.umich.edu/schedule/), parse each line</span>
+<span class="sd">    into a dictionary with instructor of the form:</span>
+<span class="sd">        {last_name: [row_data0 row_data1 ...]}</span>
+<span class="sd">    where each &#39;row_data&#39; represents a row with the same instructor</span>
+<span class="sd">    last name and is encoded as a dictionary of the form:</span>
+<span class="sd">        {column label: data}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Sanitize column labels and find the Instructor column</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="p">[</span><span class="n">elt</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="n">lname_index</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;Instructor&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Parse the Instructor column</span>
+    <span class="n">lnames_byrow</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="n">lnames_byrow</span> <span class="o">=</span> <span class="n">lnames_byrow</span> <span class="o">+</span> <span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="n">lname_index</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">)]</span>
+
+    <span class="c1"># Create unduplicated list of all instructors</span>
+    <span class="n">lnames</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">lnames_byrow</span><span class="p">:</span>
+        <span class="n">lnames</span> <span class="o">=</span> <span class="n">lnames</span> <span class="o">+</span> <span class="n">row</span>
+    <span class="n">lnames</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">lnames</span><span class="p">))</span>
+
+    <span class="c1"># Initialize dictionary with empty lists for each last name</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">lnames</span><span class="p">,[[]]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">lnames</span><span class="p">)))</span>
+    <span class="c1"># ...and the dictionary for an empty row</span>
+    <span class="n">column_labels</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span> <span class="n">column_labels</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">lname_index</span><span class="p">)</span>
+    <span class="n">mtrow</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">column_labels</span><span class="p">,[[]]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">column_labels</span><span class="p">)))</span>
+
+    <span class="c1"># Extract each line &amp; assign it to the appropriate name</span>
+    <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">[</span><span class="n">lname_index</span><span class="p">]:</span>
+            <span class="k">continue</span>
+
+        <span class="n">row_dict</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">mtrow</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">clabel</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">column_labels</span><span class="p">):</span>
+            <span class="n">row_dict</span><span class="p">[</span><span class="n">clabel</span><span class="p">]</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">lnames_byrow</span><span class="p">[</span><span class="n">r</span><span class="p">]:</span>
+            <span class="n">d</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">row_dict</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">d</span> </div>
+
+
+
+<div class="viewcode-block" id="importstews"><a class="viewcode-back" href="../knack_tools.html#knack_tools.importstews">[docs]</a><span class="k">def</span> <span class="nf">importstews</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Import raw data from Stewards&#39; list</span>
+
+<span class="sd">    To get the stews list, go to the &quot;Stewards&#39;&quot; group in Knack</span>
+<span class="sd">    and export the whole list.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Read in file</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">_readcsv</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="c1"># Process raw data</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">parsestews</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="importrosched"><a class="viewcode-back" href="../knack_tools.html#knack_tools.importrosched">[docs]</a><span class="k">def</span> <span class="nf">importrosched</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Import class schedule data from Registrar&#39;s Office.&quot;&quot;&quot;</span>
+    <span class="c1"># Read in file</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">_readcsv</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="c1"># Process raw data</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">parserosched</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="importcsv"><a class="viewcode-back" href="../knack_tools.html#knack_tools.importcsv">[docs]</a><span class="k">def</span> <span class="nf">importcsv</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read in raw data from csv file and parse into a dictionary.</span>
+
+<span class="sd">    The dictionary is structured as: </span>
+<span class="sd">        {&quot;umid&quot;: {&quot;column_name&quot;: &quot;column_data&quot;}}. So, each element</span>
+<span class="sd">    in the dictionary is all of the data for the person with this umid.</span>
+<span class="sd">    The data is a dictionary where each element is a different column.</span>
+<span class="sd">    So, getting a person&#39;s membership status would look like:</span>
+<span class="sd">        data[&quot;93048579&quot;][&quot;Membership Status&quot;]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Processing data ...&quot;</span><span class="p">)</span>
+    <span class="c1"># Read in file</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">_readcsv</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="c1"># Process raw data</span>
+    <span class="n">data</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="n">ids</span> <span class="o">=</span> <span class="n">parsebyid</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span> </div>
+
+
+<span class="k">def</span> <span class="nf">_readcsv</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Helper function to read in raw csv data.&quot;&quot;&quot;</span>
+
+    <span class="c1"># dirname = os.path.dirname(filename)</span>
+    <span class="c1"># os.chdir(dirname)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">csvreader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8-sig&#39;</span><span class="p">)</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">csvreader</span><span class="p">]</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="c1"># No idea why csvreader isn&#39;t removing the quotes in first cell...</span>
+    <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">lines</span>
+
+
+<div class="viewcode-block" id="writecsv_byid"><a class="viewcode-back" href="../knack_tools.html#knack_tools.writecsv_byid">[docs]</a><span class="k">def</span> <span class="nf">writecsv_byid</span><span class="p">(</span><span class="n">data_to_write</span><span class="p">,</span> <span class="n">export_header</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Takes any parsed Knack data and exports it to &quot;filename&quot; as csv.</span>
+
+<span class="sd">    &quot;export_header&quot; is a list of which columns should be exported.</span>
+<span class="sd">          1) if export_header == None:         do nothing.</span>
+<span class="sd">          2) if export_header == &quot;all fields&quot;: write all data in data_to_write.</span>
+<span class="sd">          3) otherwise:                        write only columns with the</span>
+<span class="sd">                                                 names specified in </span>
+<span class="sd">                                                 &quot;export_header&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">export_header</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="k">if</span> <span class="n">export_header</span> <span class="o">==</span> <span class="s1">&#39;all fields&#39;</span><span class="p">:</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="n">data_to_write</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">export_header</span> <span class="o">=</span> <span class="n">data_to_write</span><span class="p">[</span><span class="n">ids</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">data_to_write</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="c1">## Test a random person to see if all the columns are there.</span>
+    <span class="c1">## If not, warn the user and remove the column.</span>
+    <span class="n">person</span> <span class="o">=</span> <span class="n">data_to_write</span><span class="p">[</span><span class="n">data_to_write</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span><span class="n">column_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">export_header</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">column_name</span> <span class="ow">in</span> <span class="n">person</span><span class="p">:</span>
+            <span class="n">warntxt</span> <span class="o">=</span> <span class="s1">&#39;WARNING: The column &quot;&#39;</span><span class="o">+</span><span class="n">column_name</span><span class="o">+</span><span class="s1">&#39;&quot; to be exported &#39;</span><span class="o">+</span>\
+                      <span class="s1">&#39;does not exist in the data. It will be removed.&#39;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">warntxt</span><span class="p">)</span>
+            <span class="k">del</span> <span class="n">export_header</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Writing data ...&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">csvwriter</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="n">csvwriter</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="s1">&#39;UMID&#39;</span><span class="p">]</span><span class="o">+</span><span class="n">export_header</span><span class="p">)</span>
+        <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">data_to_write</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">row</span> <span class="o">=</span> <span class="p">[</span><span class="n">data_to_write</span><span class="p">[</span><span class="nb">id</span><span class="p">][</span><span class="n">col</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">export_header</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">warntxt</span> <span class="o">=</span> <span class="s1">&#39;WARNING: The column &quot;&#39;</span><span class="o">+</span><span class="n">column_name</span><span class="o">+</span><span class="s1">&#39;&quot; to be &#39;</span><span class="o">+</span>\
+                            <span class="s1">&#39;exported does not exist for person with umid: &#39;</span><span class="o">+</span>\
+                            <span class="nb">id</span><span class="o">+</span><span class="s1">&#39;. It will be skipped.&#39;</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">warntxt</span><span class="p">)</span>
+                <span class="n">row</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">]</span>
+            <span class="n">csvwriter</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="nb">id</span><span class="p">]</span><span class="o">+</span><span class="n">row</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="writecsv_summary"><a class="viewcode-back" href="../knack_tools.html#knack_tools.writecsv_summary">[docs]</a><span class="k">def</span> <span class="nf">writecsv_summary</span><span class="p">(</span><span class="n">data_to_write</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Writing summary ...&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">csvwriter</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data_to_write</span><span class="p">:</span>
+            <span class="n">csvwriter</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+
+
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1"># Importers/Exporters</span>
+<span class="c1">###############################################################################</span>
+
+<div class="viewcode-block" id="GuiIO"><a class="viewcode-back" href="../knack_tools.html#knack_tools.GuiIO">[docs]</a><span class="k">class</span> <span class="nc">GuiIO</span><span class="p">(</span><span class="n">Frame</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates Simple GUI to import, process, and export Knack data.&quot;&quot;&quot;</span> 
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>   <span class="bp">self</span><span class="p">,</span> <span class="n">processing_fn</span><span class="p">,</span> <span class="n">export_header</span><span class="p">,</span> 
+                    <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;./out.csv&#39;</span><span class="p">,</span> <span class="n">master</span><span class="o">=</span><span class="kc">None</span>   <span class="p">):</span>
+        <span class="n">Frame</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">StringVar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">StringVar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">createWidgets</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processing_fn</span> <span class="o">=</span> <span class="n">processing_fn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">export_header</span> <span class="o">=</span> <span class="n">export_header</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_filename</span> <span class="o">=</span> <span class="n">out_filename</span>
+
+
+<div class="viewcode-block" id="GuiIO.createWidgets"><a class="viewcode-back" href="../knack_tools.html#knack_tools.GuiIO.createWidgets">[docs]</a>    <span class="k">def</span> <span class="nf">createWidgets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">filebutton</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span>   <span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Select Input File&quot;</span><span class="p">,</span>
+                                    <span class="n">command</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">getfilename</span>    <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filenameprompt</span> <span class="o">=</span> <span class="n">Label</span><span class="p">(</span><span class="n">textvariable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">getunbutton</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span>  <span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Process File!&quot;</span><span class="p">,</span> 
+                                    <span class="n">command</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statusprompt</span> <span class="o">=</span> <span class="n">Label</span><span class="p">(</span><span class="n">textvariable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">filenameprompt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filebutton</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">getunbutton</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statusprompt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GuiIO.getfilename"><a class="viewcode-back" href="../knack_tools.html#knack_tools.GuiIO.getfilename">[docs]</a>    <span class="k">def</span> <span class="nf">getfilename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">tkFileDialog</span><span class="o">.</span><span class="n">askopenfilename</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="GuiIO.process"><a class="viewcode-back" href="../knack_tools.html#knack_tools.GuiIO.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;Processing ...&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Read in file</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">importcsv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
+        <span class="c1"># Run processing function on data</span>
+        <span class="n">processed_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">processing_fn</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="c1"># Write processed data</span>
+        <span class="n">writecsv_byid</span><span class="p">(</span><span class="n">processed_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">export_header</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_filename</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;Done!&quot;</span><span class="p">)</span></div></div>
+
+    <span class="c1"># NOTE: &quot;mainloop&quot; function is inherited from the &quot;Frame&quot; class</span>
+
+
+<div class="viewcode-block" id="AutomaticIO"><a class="viewcode-back" href="../knack_tools.html#knack_tools.AutomaticIO">[docs]</a><span class="k">class</span> <span class="nc">AutomaticIO</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Imports, processes, and exports Knack data from given file.&quot;&quot;&quot;</span> 
+<div class="viewcode-block" id="AutomaticIO.m"><a class="viewcode-back" href="../knack_tools.html#knack_tools.AutomaticIO.m">[docs]</a>    <span class="k">class</span> <span class="nc">m</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Dummy class to make the interface similar to GuiIO&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="AutomaticIO.m.title"><a class="viewcode-back" href="../knack_tools.html#knack_tools.AutomaticIO.m.title">[docs]</a>        <span class="k">def</span> <span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">txt</span><span class="p">):</span> <span class="k">pass</span></div></div>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>   <span class="bp">self</span><span class="p">,</span> <span class="n">in_filename</span><span class="p">,</span> <span class="n">processing_fn</span><span class="p">,</span> <span class="n">export_header</span><span class="p">,</span> 
+                    <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;out.csv&#39;</span><span class="p">,</span> <span class="n">master</span><span class="o">=</span><span class="kc">None</span>  <span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">in_filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_filename</span> <span class="o">=</span> <span class="n">out_filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processing_fn</span> <span class="o">=</span> <span class="n">processing_fn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">export_header</span> <span class="o">=</span> <span class="n">export_header</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">master</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="AutomaticIO.mainloop"><a class="viewcode-back" href="../knack_tools.html#knack_tools.AutomaticIO.mainloop">[docs]</a>    <span class="k">def</span> <span class="nf">mainloop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Read in file</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">importcsv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">_data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="c1"># Run processing function on data</span>
+        <span class="n">processed_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">processing_fn</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="c1"># Write processed data</span>
+        <span class="n">writecsv_byid</span><span class="p">(</span><span class="n">processed_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">export_header</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_filename</span><span class="p">)</span></div></div>
+  
+
+
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1"># The Scripting GUI Window</span>
+<span class="c1">###############################################################################</span>
+
+<div class="viewcode-block" id="ScriptingWindow"><a class="viewcode-back" href="../knack_tools.html#knack_tools.ScriptingWindow">[docs]</a><span class="k">class</span> <span class="nc">ScriptingWindow</span><span class="p">(</span><span class="n">Frame</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Builds out what you see on the screen.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">available_scripts</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Knack Scripts&#39;</span><span class="p">,</span> <span class="n">master</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">avail_scripts</span> <span class="o">=</span> <span class="n">available_scripts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
+
+        <span class="c1">## This just builds the window </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="n">Tk</span><span class="p">()</span>
+        <span class="n">Frame</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initWindow</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="ScriptingWindow.initWindow"><a class="viewcode-back" href="../knack_tools.html#knack_tools.ScriptingWindow.initWindow">[docs]</a>    <span class="k">def</span> <span class="nf">initWindow</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">master</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">geometry</span><span class="p">(</span><span class="s2">&quot;920x420&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">createWidgets</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ScriptingWindow.createWidgets"><a class="viewcode-back" href="../knack_tools.html#knack_tools.ScriptingWindow.createWidgets">[docs]</a>    <span class="k">def</span> <span class="nf">createWidgets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+
+        <span class="c1">############################</span>
+        <span class="c1"># Setup some things first</span>
+        <span class="c1">############################</span>
+
+        <span class="c1">## These are strings we use to control other things.</span>
+        <span class="c1">## Note that these are tkinter string objects, so</span>
+        <span class="c1">## to retrieve the values, we have to use &quot;var.get()&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span>   <span class="o">=</span> <span class="n">StringVar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_filename</span> <span class="o">=</span> <span class="n">StringVar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_filename</span> <span class="o">=</span> <span class="n">StringVar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">helptext</span> <span class="o">=</span> <span class="n">StringVar</span><span class="p">()</span>
+
+        <span class="c1">## Default text for said strings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_filename</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span><span class="o">+</span><span class="s1">&#39;/data/all_actives-4-26-19.csv&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_filename</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span><span class="o">+</span><span class="s1">&#39;/results/out.csv&#39;</span><span class="p">)</span>
+
+        <span class="c1">## Keep track of which script is currently selected</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processing_function</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">avail_scripts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">processing_function</span>
+
+        <span class="c1">## Script selection drop down</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scriptoptions</span> <span class="o">=</span> <span class="p">[</span><span class="n">script</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">script</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">avail_scripts</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selected_script</span>  <span class="o">=</span> <span class="n">StringVar</span><span class="p">()</span>
+        <span class="c1">## This sets default option for the drop down</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selected_script</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scriptoptions</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="c1">## Folder Icon</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">foldericon</span> <span class="o">=</span> <span class="n">PhotoImage</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span><span class="o">+</span><span class="s2">&quot;/icons/magnifier_17.png&quot;</span><span class="p">)</span>
+
+
+        <span class="c1">###################################################################</span>
+        <span class="c1"># Position everything in the master frame (the window itself)</span>
+        <span class="c1">###################################################################</span>
+
+        <span class="c1">## Base Layer (everything builds on this)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">master</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">master</span><span class="o">.</span><span class="n">columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">master</span><span class="o">.</span><span class="n">rowconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1">###########</span>
+        <span class="c1"># First frame separates the </span>
+        <span class="c1"># checkboxes from everything else.</span>
+        <span class="c1">#</span>
+        <span class="c1"># ------------------------</span>
+        <span class="c1"># |         |            |</span>
+        <span class="c1"># | other   | checkboxes |</span>
+        <span class="c1"># | stuff   |            |</span>
+        <span class="c1"># |         |            |</span>
+        <span class="c1"># ------------------------</span>
+
+        <span class="n">frame1</span> <span class="o">=</span> <span class="n">Frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">master</span><span class="p">)</span>
+        <span class="n">frame1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nsew&#39;</span><span class="p">)</span>
+        <span class="c1">## This makes it so this frame</span>
+        <span class="c1">## stretches when you resize the main window</span>
+        <span class="n">frame1</span><span class="o">.</span><span class="n">columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">frame1</span><span class="o">.</span><span class="n">rowconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+
+        <span class="c1">###########</span>
+        <span class="c1"># Second layer of frames form the </span>
+        <span class="c1"># base for the checkboxes and</span>
+        <span class="c1"># everything else, respectively.</span>
+        <span class="c1">#</span>
+        <span class="c1"># --------------------------------</span>
+        <span class="c1"># |              |               |</span>
+        <span class="c1"># | ------------ | ------------- |</span>
+        <span class="c1"># | | primary  | | | checkbox  | |</span>
+        <span class="c1"># | | frame    | | | frame     | |</span>
+        <span class="c1"># | ------------ | ------------- |</span>
+        <span class="c1"># |              |               |</span>
+        <span class="c1"># --------------------------------</span>
+        <span class="n">frame_primary</span>    <span class="o">=</span> <span class="n">Frame</span><span class="p">(</span><span class="n">frame1</span><span class="p">)</span>
+        <span class="n">frame_checkboxes</span> <span class="o">=</span> <span class="n">LabelFrame</span><span class="p">(</span><span class="n">frame1</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Data to Export&quot;</span><span class="p">)</span>
+
+        <span class="n">frame_primary</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nsew&#39;</span><span class="p">)</span>
+        <span class="n">frame_checkboxes</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nsew&#39;</span><span class="p">)</span>
+
+        <span class="c1">## Stretch the column with all the text boxes</span>
+        <span class="n">frame_primary</span><span class="o">.</span><span class="n">columnconfigure</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1">## Stretch the row with the script description</span>
+        <span class="n">frame_primary</span><span class="o">.</span><span class="n">rowconfigure</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+
+
+        <span class="c1">###########</span>
+        <span class="c1"># Build primary frame</span>
+        <span class="c1">#</span>
+        <span class="c1"># --------------------------------</span>
+        <span class="c1"># |              |               |</span>
+        <span class="c1"># | ------------ | ------------- |</span>
+        <span class="c1"># | | 1st row  | | |           | |</span>
+        <span class="c1"># | ------------ | |           | |</span>
+        <span class="c1"># | | 2nd row  | | |           | |</span>
+        <span class="c1"># | ------------ | |           | |</span>
+        <span class="c1"># | |    .     | | |           | |</span>
+        <span class="c1"># | |    .     | | |           | |</span>
+        <span class="c1"># | |    .     | | |           | |</span>
+        <span class="c1"># | ------------ | ------------- |</span>
+        <span class="c1"># |              |               |</span>
+        <span class="c1"># --------------------------------</span>
+
+        <span class="c1">## 1st row</span>
+        <span class="n">lbl_script</span> <span class="o">=</span> <span class="n">Label</span><span class="p">(</span><span class="n">frame_primary</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Script:&quot;</span><span class="p">)</span>
+        <span class="n">lbl_script</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">scriptmenu</span> <span class="o">=</span> <span class="n">OptionMenu</span><span class="p">(</span>   <span class="n">frame_primary</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_script</span><span class="p">,</span>
+                                        <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">scriptoptions</span><span class="p">,</span> 
+                                        <span class="n">command</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_update_script</span>  <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scriptmenu</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;we&quot;</span><span class="p">)</span>
+
+
+        <span class="c1">## 2nd row</span>
+        <span class="n">lbl_input</span>  <span class="o">=</span> <span class="n">Label</span><span class="p">(</span><span class="n">frame_primary</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Input File:&quot;</span><span class="p">)</span>
+        <span class="n">lbl_input</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_entry</span> <span class="o">=</span> <span class="n">Entry</span><span class="p">(</span>   <span class="n">frame_primary</span><span class="p">,</span> 
+                                    <span class="n">textvariable</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">input_filename</span>  <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_entry</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;we&quot;</span><span class="p">)</span>
+
+        <span class="n">inbutton</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span>  <span class="n">frame_primary</span><span class="p">,</span>
+                            <span class="n">command</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getfilename_input</span><span class="p">()</span>  <span class="p">)</span>
+        <span class="n">inbutton</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">foldericon</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s2">&quot;17&quot;</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="s2">&quot;17&quot;</span><span class="p">)</span>
+        <span class="n">inbutton</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+
+        <span class="c1">## 3rd row</span>
+        <span class="n">lbl_output</span> <span class="o">=</span> <span class="n">Label</span><span class="p">(</span><span class="n">frame_primary</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Output File:&quot;</span><span class="p">)</span>
+        <span class="n">lbl_output</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_entry</span> <span class="o">=</span> <span class="n">Entry</span><span class="p">(</span>  <span class="n">frame_primary</span><span class="p">,</span>
+                                    <span class="n">textvariable</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_filename</span>  <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_entry</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;we&quot;</span><span class="p">)</span>
+
+        <span class="n">outbutton</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span>   <span class="n">frame_primary</span><span class="p">,</span>
+                              <span class="n">command</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getfilename_output</span><span class="p">()</span>    <span class="p">)</span>
+        <span class="n">outbutton</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">foldericon</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s2">&quot;17&quot;</span><span class="p">,</span><span class="n">height</span><span class="o">=</span><span class="s2">&quot;17&quot;</span><span class="p">)</span>
+        <span class="n">outbutton</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+
+        <span class="c1">## 4th row</span>
+        <span class="n">helptext_frame</span> <span class="o">=</span> <span class="n">LabelFrame</span><span class="p">(</span>  <span class="n">frame_primary</span><span class="p">,</span> 
+                                      <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Description of Selected Script&quot;</span>  <span class="p">)</span>
+        <span class="n">helptext_frame</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;nsew&#39;</span><span class="p">)</span>
+        <span class="n">helptext_frame</span><span class="o">.</span><span class="n">columnconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">helptext_frame</span><span class="o">.</span><span class="n">rowconfigure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+       
+        <span class="bp">self</span><span class="o">.</span><span class="n">helptext_lbl</span> <span class="o">=</span> <span class="n">ScrolledText</span><span class="p">(</span>  <span class="n">helptext_frame</span><span class="p">,</span> <span class="n">wrap</span><span class="o">=</span><span class="n">WORD</span>  <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">helptext_lbl</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">INSERT</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">avail_scripts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">helptext_lbl</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="n">DISABLED</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">helptext_lbl</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;nsew&quot;</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+
+        <span class="c1">## 5th row </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statusprompt</span> <span class="o">=</span> <span class="n">Label</span><span class="p">(</span><span class="n">frame_primary</span><span class="p">,</span> <span class="n">textvariable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statusprompt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+
+        <span class="c1">## 6th row</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">procbutton</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span>  <span class="n">frame_primary</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Process File!&quot;</span><span class="p">,</span> 
+                                    <span class="n">command</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">run_script</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">procbutton</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+       
+
+        <span class="c1">###########</span>
+        <span class="c1"># Build checkbox frame</span>
+        <span class="c1">#</span>
+        <span class="c1"># ---------------------------------</span>
+        <span class="c1"># |              |                |</span>
+        <span class="c1"># | ------------ | -------------- |</span>
+        <span class="c1"># | |          | | |            | |</span>
+        <span class="c1"># | |          | | | checkboxes | |</span>
+        <span class="c1"># | |          | | |            | |</span>
+        <span class="c1"># | |          | | -------------- |</span>
+        <span class="c1"># | |          | | | text       | |</span>
+        <span class="c1"># | |          | | -------------- |</span>
+        <span class="c1"># | |          | | | user input | |</span>
+        <span class="c1"># | ------------ | -------------- |</span>
+        <span class="c1"># |              |                |</span>
+        <span class="c1"># ---------------------------------</span>
+
+        <span class="c1">## Each element: [header_text, is_checked_by_default]</span>
+        <span class="n">common_data</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">[</span><span class="s1">&#39;Individual&#39;</span><span class="p">,</span>           <span class="kc">True</span> <span class="p">],</span>
+            <span class="p">[</span><span class="s1">&#39;Name: First&#39;</span><span class="p">,</span>          <span class="kc">False</span><span class="p">],</span>
+            <span class="p">[</span><span class="s1">&#39;Name: Last&#39;</span><span class="p">,</span>           <span class="kc">False</span><span class="p">],</span>
+            <span class="p">[</span><span class="s1">&#39;Department&#39;</span><span class="p">,</span>           <span class="kc">True</span> <span class="p">],</span>
+            <span class="p">[</span><span class="s1">&#39;Secondary Department&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+            <span class="p">[</span><span class="s1">&#39;Employer Unique Name&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+            <span class="p">[</span><span class="s1">&#39;Employment Status&#39;</span><span class="p">,</span>    <span class="kc">False</span><span class="p">],</span>
+            <span class="p">[</span><span class="s1">&#39;Member Status&#39;</span><span class="p">,</span>        <span class="kc">True</span> <span class="p">],</span>
+            <span class="p">[</span><span class="s1">&#39;Preferred Email&#39;</span><span class="p">,</span>      <span class="kc">True</span> <span class="p">],</span>
+            <span class="p">[</span><span class="s1">&#39;Secondary Email&#39;</span><span class="p">,</span>      <span class="kc">True</span> <span class="p">],</span>
+            <span class="p">[</span><span class="s1">&#39;Assessment&#39;</span><span class="p">,</span>           <span class="kc">True</span> <span class="p">],</span>
+            <span class="p">[</span><span class="s1">&#39;Last Assessment Date&#39;</span><span class="p">,</span> <span class="kc">True</span> <span class="p">],</span>
+            <span class="p">[</span><span class="s1">&#39;Hire Date&#39;</span><span class="p">,</span>            <span class="kc">False</span><span class="p">],</span>
+            <span class="p">[</span><span class="s1">&#39;FTE&#39;</span><span class="p">,</span>                  <span class="kc">False</span><span class="p">]</span>
+        <span class="p">]</span>
+
+        <span class="n">checkboxes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkbox_strings</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkbox_values</span>  <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span><span class="n">export_elt</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">common_data</span><span class="p">):</span>
+            <span class="c1">## Set default checkbox state</span>
+            <span class="n">this_value</span> <span class="o">=</span> <span class="n">IntVar</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">export_elt</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">this_value</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">this_value</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="c1">## Build current checkbox</span>
+            <span class="n">this_box</span> <span class="o">=</span> <span class="n">Checkbutton</span><span class="p">(</span> <span class="n">frame_checkboxes</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">export_elt</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> 
+                                    <span class="n">variable</span><span class="o">=</span><span class="n">this_value</span> <span class="p">)</span>
+            <span class="n">this_box</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+
+            <span class="c1">## Save some parameters to change later</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">checkbox_strings</span> <span class="o">+=</span> <span class="p">[</span><span class="n">export_elt</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">checkbox_values</span>  <span class="o">+=</span> <span class="p">[</span><span class="n">this_value</span><span class="p">]</span>
+            <span class="n">checkboxes</span> <span class="o">+=</span> <span class="p">[</span><span class="n">this_box</span><span class="p">]</span>
+
+        <span class="n">lblstr</span> <span class="o">=</span> <span class="s1">&#39;Custom Entry:</span><span class="se">\n</span><span class="s1">(comma separated, e.g. &quot;Building,Office #&quot;)&#39;</span>
+        <span class="n">user_header_lbl</span> <span class="o">=</span> <span class="n">Label</span><span class="p">(</span><span class="n">frame_checkboxes</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">lblstr</span><span class="p">)</span>
+        <span class="n">user_header_lbl</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">user_header_text</span> <span class="o">=</span> <span class="n">StringVar</span><span class="p">()</span>
+        <span class="n">user_header</span> <span class="o">=</span> <span class="n">Entry</span><span class="p">(</span>  <span class="n">frame_checkboxes</span><span class="p">,</span> 
+                              <span class="n">textvariable</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">user_header_text</span>  <span class="p">)</span>
+        <span class="n">user_header</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">sticky</span><span class="o">=</span><span class="s1">&#39;we&#39;</span><span class="p">)</span></div>
+
+
+
+
+    <span class="k">def</span> <span class="nf">_getfilename_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Internal function. </span>
+<span class="sd">            This gets called when the input file search button is pressed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_filename</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">tkFileDialog</span><span class="o">.</span><span class="n">askopenfilename</span><span class="p">())</span>
+
+
+    <span class="k">def</span> <span class="nf">_getfilename_output</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Internal function. </span>
+<span class="sd">            This gets called when the output file search button is pressed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_filename</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">tkFileDialog</span><span class="o">.</span><span class="n">askopenfilename</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">_update_script</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_script_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Internal function.</span>
+<span class="sd">            This gets called whenever a different script gets selected</span>
+<span class="sd">            (in the drop-down menu) </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">## Figure out which script got selected</span>
+        <span class="n">script_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">script</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">script</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">avail_scripts</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span><span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">script_names</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">name</span><span class="o">==</span><span class="n">new_script_name</span><span class="p">:</span>
+                <span class="n">new_index</span> <span class="o">=</span> <span class="n">idx</span>
+
+        <span class="c1">## Update everything with the new script&#39;s information</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processing_function</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">avail_scripts</span><span class="p">[</span><span class="n">new_index</span><span class="p">]</span><span class="o">.</span>\
+                                        <span class="n">processing_function</span>
+        
+        <span class="c1">## Need to update the textbox explicitly, since it doesn&#39;t</span>
+        <span class="c1">## support linking to a StringVar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">helptext_lbl</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="n">NORMAL</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">helptext_lbl</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="n">END</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">helptext_lbl</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span>  <span class="n">INSERT</span><span class="p">,</span> 
+                        <span class="bp">self</span><span class="o">.</span><span class="n">avail_scripts</span><span class="p">[</span><span class="n">new_index</span><span class="p">]</span><span class="o">.</span><span class="n">description</span>  <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">helptext_lbl</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="n">DISABLED</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ScriptingWindow.setstatus"><a class="viewcode-back" href="../knack_tools.html#knack_tools.ScriptingWindow.setstatus">[docs]</a>    <span class="k">def</span> <span class="nf">setstatus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">status</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ScriptingWindow.getfilename_output"><a class="viewcode-back" href="../knack_tools.html#knack_tools.ScriptingWindow.getfilename_output">[docs]</a>    <span class="k">def</span> <span class="nf">getfilename_output</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the contents of the outut file dialog box&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_filename</span><span class="o">.</span><span class="n">get</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ScriptingWindow.getfilename_input"><a class="viewcode-back" href="../knack_tools.html#knack_tools.ScriptingWindow.getfilename_input">[docs]</a>    <span class="k">def</span> <span class="nf">getfilename_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the contents of the input file dialog box&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_filename</span><span class="o">.</span><span class="n">get</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ScriptingWindow.get_processing_function"><a class="viewcode-back" href="../knack_tools.html#knack_tools.ScriptingWindow.get_processing_function">[docs]</a>    <span class="k">def</span> <span class="nf">get_processing_function</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the selected script&#39;s processing function&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">processing_function</span></div>
+
+
+<div class="viewcode-block" id="ScriptingWindow.get_export_header"><a class="viewcode-back" href="../knack_tools.html#knack_tools.ScriptingWindow.get_export_header">[docs]</a>    <span class="k">def</span> <span class="nf">get_export_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a list of all headers that are selected with checkboxes&quot;&quot;&quot;</span>
+
+        <span class="c1">## Get headers from checkboxes</span>
+        <span class="n">export_header</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">checkbox_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">check</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkbox_values</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span><span class="n">checkbox_value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">checkbox_values</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">checkbox_value</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">export_header</span> <span class="o">+=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">checkbox_strings</span><span class="p">[</span><span class="n">idx</span><span class="p">]]</span>
+
+        <span class="c1">## Get user-added headers</span>
+        <span class="n">user_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_header_text</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">user_str</span><span class="p">:</span>
+            <span class="n">export_header</span> <span class="o">+=</span> <span class="n">user_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">export_header</span></div>
+
+
+<div class="viewcode-block" id="ScriptingWindow.run_script"><a class="viewcode-back" href="../knack_tools.html#knack_tools.ScriptingWindow.run_script">[docs]</a>    <span class="k">def</span> <span class="nf">run_script</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This is the top-level processing function. </span>
+
+<span class="sd">              It is called when the &quot;Process File&quot; button is pressed</span>
+<span class="sd">              and does the following:</span>
+<span class="sd">                1) import data from csv</span>
+<span class="sd">                2) run selected processing script on data</span>
+<span class="sd">                3) export results to csv</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;Processing ...&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Read in file</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">importcsv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getfilename_input</span><span class="p">())</span>
+            <span class="c1"># Run processing function on data</span>
+            <span class="n">processing_fn</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_processing_function</span><span class="p">()</span>
+            <span class="n">processed_data</span> <span class="o">=</span> <span class="n">processing_fn</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="c1"># Write processed data</span>
+            <span class="n">writecsv_byid</span><span class="p">(</span>  <span class="n">processed_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_export_header</span><span class="p">(),</span> 
+                            <span class="bp">self</span><span class="o">.</span><span class="n">getfilename_output</span><span class="p">()</span>  <span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setstatus</span><span class="p">(</span><span class="s2">&quot;Processing Error :-( (see command prompt)&quot;</span><span class="p">)</span>
+            <span class="k">raise</span>
+            
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setstatus</span><span class="p">(</span><span class="s2">&quot;Done!&quot;</span><span class="p">)</span></div></div>
+
+
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, John Bell.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.7</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

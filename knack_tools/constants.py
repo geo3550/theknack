@@ -2,6 +2,9 @@
 constants.py
 
 A collection of helpful constants for umich's knack.
+
+NOTE: If the department name in knack has changed or if new departments
+        are added, these lists must be updated.
 """
 
 
@@ -153,6 +156,7 @@ ALL_DEPTS = {
     "COE - Robotics Institute",
     "COE - Undergraduate Education",
     "College of Pharmacy",
+    "College of Pharmacy - Pharmaceutical Science",
     "Ford School - Public Policy",
     "Graduate School Administration",
     "ICPSR - Summer Program",
@@ -328,6 +332,7 @@ DEPT_TO_DEPTCODES = {
     "COE - Robotics Institute": ["RAV"],
     "COE - Undergraduate Education": ["ENGR"],
     "College of Pharmacy": ["PHARMACY"],
+    "College of Pharmacy - Pharmaceutical Science": ["PHARMACY"],
     "Ford School - Public Policy": ["PUBPOL"],
     "Graduate School Administration": ["RACKHAM"],
     "ICPSR - Summer Program": [""],

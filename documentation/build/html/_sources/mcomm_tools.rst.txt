@@ -1,0 +1,22 @@
+mcomm\_tools package
+====================
+
+Submodules
+----------
+
+mcomm\_tools\.config module
+---------------------------
+
+.. automodule:: mcomm_tools.config
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: mcomm_tools
+    :members:
+    :undoc-members:
+    :show-inheritance:
