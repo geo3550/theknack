@@ -456,7 +456,7 @@ class ScriptingWindow(Frame):
         self.selected_script.set(self.scriptoptions[0])
 
         ## Folder Icon
-        self.foldericon = PhotoImage(file=os.getcwd()+"/icons/magnifier_17.png")
+        self.foldericon = PhotoImage(file=os.getcwd()+"/icons/magnifier_17.gif")
 
 
         ###################################################################
