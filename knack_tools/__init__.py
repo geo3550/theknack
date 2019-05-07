@@ -252,7 +252,17 @@ def _readcsv(filename):
 
     with open(filename, "rb") as f:
         csvreader = csv.reader(f, encoding='utf-8-sig')
-        lines = [line for line in csvreader]
+        count = 0
+        lines = []
+        for line in csvreader:
+            count += 1
+            try:
+                lines += [line]
+            except UnicodeDecodeError:
+                print("WARNING: Line number "+str(count)+" in the input file "
+                      "contains an unparsable character."+
+                      " This person will be ignored.")
+                continue
     f.close()
 
     # No idea why csvreader isn't removing the quotes in first cell...
