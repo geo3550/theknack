@@ -16,7 +16,7 @@ A repository for scripts to parse Knack data.
     Open a command prompt. On Windows 7 this can be done by clicking Start menu -> All Programs -> Accessories -> Command Prompt. You can also search for it.
     Type “C:\Python27\python.exe -m pip install requests” and press Enter. Wait for it to finish installing.
     * Install the "unicodecsv" "" package.
-    Type “C:\Python27\python.exe -m pip install unicode” and press Enter.
+    Type “C:\Python27\python.exe -m pip install unicodecsv” and press Enter.
 2. Now, you should be able to run the file “get-uniqnames.py” by double-clicking it.
 3. Run the program. A window with some buttons should pop up.
     * Prepare the input file. It needs to be a comma-separated values (CSV) file containing two columns labeled “FirstName” and “LastName.” We can get this simply by opening up the monthly report file given to us by HR in Excel and saving the file as a CSV file.
