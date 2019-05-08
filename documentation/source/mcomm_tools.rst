@@ -1,4 +1,6 @@
-mcomm\_tools package
+.. _mcomm:
+
+mcomm\_tools Package
 ====================
 
 Submodules
@@ -17,6 +19,4 @@ Module contents
 ---------------
 
 .. automodule:: mcomm_tools
-    :members:
-    :undoc-members:
-    :show-inheritance:
+	:members:

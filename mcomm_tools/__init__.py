@@ -20,11 +20,6 @@ import base64
 
 import knack_tools as kt
 
-## TO DO: It'd be nice to reference the main 'constants.py' file for this
-##          rather than duplicating it...
-MASTERS = {"MHSA","MLArch", "DNP" , "MUP", "MHI", "MSW", "MFA", "AMusD", "MBA",
-           "MPH", "MAcc", "MPP", "MArch", "MSE", "MEng", "MSI", "MS", "MA"}
-
 
 ###############################################################################
 # Mcommunity Scraper Tool
@@ -56,7 +51,7 @@ class Scraper(object):
     ###########################################
 
     def _apicall(self,access_token, client_id, query):
-        """Makes basic apicalls to the mcommunity"""
+        """Internal Function. Makes basic apicalls to the mcommunity"""
         header = {'Authorization': 'Bearer ' + access_token,
                   'X-IBM-Client-Id': client_id}
 
@@ -69,6 +64,10 @@ class Scraper(object):
 
 
     def querydb(self,query):
+        """Search Mcommunity for the text in ``query``.
+
+        Returns a dictionary which represents the JSON data sent from server.
+        """
         token_call = requests.post(self.token_url,
                             headers=self.token_access_header).json()
         try:
@@ -86,7 +85,7 @@ class Scraper(object):
 
     def choose_person(self, query_result, knack_result):
         """
-        Given the json from an mcommunity api call, compare as many pieces 
+        Given the JSON from an mcommunity api call, compare as many pieces 
         of information we have and choose the one that has the highest 
         match %. Return chosen person.
         """
@@ -166,6 +165,11 @@ class Scraper(object):
 
 
     def getenrolled(self, person):
+        """Get enrollment information for a given student.
+
+        Accepts dictionary for a single person and returns a list of 2 strings:
+            ["Department", "Degree Type"]   (e.g. ["LSA Mathematics", "PhD"])
+        """
         try:affiliations = person[u'affiliation']
         except:return ["", ""]
         stud = filter(lambda x: "Student" in x, affiliations)
@@ -173,7 +177,6 @@ class Scraper(object):
             if "PhD" in x:
                 return [x[:-14], "PhD"]
         for x in stud:
-            # for m in MASTERS:
             for m in kt.constants.MASTERS:
                 if m in x:
                     return [x[:-10-len(m)], m]

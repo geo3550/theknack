@@ -84,7 +84,8 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+# html_theme = 'alabaster'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -168,3 +169,32 @@ texinfo_documents = [
 
 
 
+
+
+
+
+## Monkey patch to suppress including the values when printing variables.
+from sphinx.ext.autodoc import DataDocumenter, ModuleLevelDocumenter, SUPPRESS
+from sphinx.util.inspect import object_description
+
+def add_directive_header(self, sig):
+    ModuleLevelDocumenter.add_directive_header(self, sig)
+    if not self.options.annotation:
+        try:
+            objrepr = object_description(self.object)
+
+            # PATCH: truncate the value if longer than 50 characters
+            if len(objrepr) > 50:                  
+                objrepr = objrepr[:50] + "..." 
+
+        except ValueError:
+            pass
+        else:
+            self.add_line(u'   :annotation: = ' + objrepr, '<autodoc>')
+    elif self.options.annotation is SUPPRESS:
+        pass
+    else:
+        self.add_line(u'   :annotation: %s' % self.options.annotation,
+                      '<autodoc>')
+
+DataDocumenter.add_directive_header = add_directive_header

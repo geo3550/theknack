@@ -12,6 +12,7 @@ NOTE: If the department name in knack has changed or if new departments
 ################################################################################
 # Constants
 ################################################################################
+#: Set of all possible Master's programs
 MASTERS = {"MHSA","MLArch", "DNP" , "MUP", "MHI", "MSW", "MFA", "AMusD", "MBA",
            "MPH", "MAcc", "MPP", "MArch", "MSE", "MEng", "MSI", "MS", "MA"}
 
@@ -138,6 +139,8 @@ MASTERS = {"MHSA","MLArch", "DNP" , "MUP", "MHI", "MSW", "MFA", "AMusD", "MBA",
 #     "Stamps School of Art & Design",
 #     "Urban Planning"
 # }
+
+#: List of all departments
 ALL_DEPTS = {
     "COE - Aerospace",
     "COE - Biomedical",
@@ -272,6 +275,7 @@ ALL_DEPTS = {
 }
 
 
+#: Set of all North Campus departments
 NORTH_CAMPUS_DEPTS = {
     "COE - Aerospace",
     "COE - Biomedical",
@@ -299,6 +303,7 @@ NORTH_CAMPUS_DEPTS = {
     "Taubman - Urban Planning",
 }
 
+#: Set of all Engineering departments
 ENGINEERING_DEPTS = {
     "COE - Aerospace",
     "COE - Biomedical",
@@ -324,6 +329,9 @@ ENGINEERING_DEPTS = {
 #
 # NOTE: Some of these I'm guessing at and will probably have to change!
 # ALSO: *** NEED TO UPDATE THESE WITH NEW DEPT NAMES ***
+#
+#: Dictionary mapping each department (as it is seen in knack) to umich's
+#: department code.
 DEPT_TO_DEPTCODES = {
     "COE - Aerospace": ["AEROSP"],
     "COE - Biomedical": ["BIOMEDE"],

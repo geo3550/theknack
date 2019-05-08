@@ -1,0 +1,405 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>‘knack_tools’ Overview &mdash; knack_scripts 1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> knack_scripts
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">‘knack_tools’ Overview</a><ul>
+<li><a class="reference internal" href="#processing-functions">Processing Functions</a></li>
+<li><a class="reference internal" href="#the-knack-tools-selectors-module">The knack_tools.selectors Module</a></li>
+<li><a class="reference internal" href="#the-knack-tools-constants-module">The knack_tools.constants Module</a></li>
+<li><a class="reference internal" href="#file-i-o">File I/O</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">knack_scripts</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>‘knack_tools’ Overview</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/knack_tools_overview.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="knack-tools-overview">
+<span id="ktoverview"></span><h1>‘knack_tools’ Overview<a class="headerlink" href="#knack-tools-overview" title="Permalink to this headline">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">knack_tools</span></code> is a collection of useful tools for working with Knack data. There are lots of pre-written processing and file I/O functions along with other useful things like lists of umich department names.</p>
+<p>The following is a collection of the most useful features. For more complete documentation, see <a class="reference internal" href="knack_tools.html#ktref"><span class="std std-ref">knack_tools package</span></a>.</p>
+<div class="section" id="processing-functions">
+<h2>Processing Functions<a class="headerlink" href="#processing-functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="knack_tools.filterdata">
+<code class="descclassname">knack_tools.</code><code class="descname">filterdata</code><span class="sig-paren">(</span><em>data</em>, <em>selector_fn</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#filterdata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.filterdata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a dictionary of people, call ‘selector_fn’ for each person      
+and remove any entries that return ‘None’</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.count_duespayers">
+<code class="descclassname">knack_tools.</code><code class="descname">count_duespayers</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#count_duespayers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.count_duespayers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes parsed Knack data and returns the number of dues payers in said     data.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.count_nonpayers">
+<code class="descclassname">knack_tools.</code><code class="descname">count_nonpayers</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#count_nonpayers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.count_nonpayers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes parsed Knack data and returns the number of non-dues payers in     said data.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="the-knack-tools-selectors-module">
+<h2>The knack_tools.selectors Module<a class="headerlink" href="#the-knack-tools-selectors-module" title="Permalink to this headline">¶</a></h2>
+<p>This module contains all the pre-written functions to be used by the <code class="docutils literal notranslate"><span class="pre">knack_tools.filterdata</span></code> function. In general, they take one argument (the dictionary for a single person’s data), and return either that same data (if the person is to be included in the output data) or <code class="docutils literal notranslate"><span class="pre">None</span></code> (if the person is to be removed from the output data).</p>
+<p>Sometimes, however, a function needs to accept more information than just the person’s data. For example, the <code class="docutils literal notranslate"><span class="pre">bydept</span></code> selector must also know what department(s) to select for. In this case, a wrapper function must be created by the user in order to pass <code class="docutils literal notranslate"><span class="pre">filterdata</span></code> a function with only 1 input. You can use python’s <code class="docutils literal notranslate"><span class="pre">lambda</span></code> function to do this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">knack_tools</span> <span class="k">as</span> <span class="nn">kt</span>
+
+<span class="c1">## &quot;north_campus&quot; will contain only people from North Campus Departments.</span>
+<span class="n">north_campus</span> <span class="o">=</span> <span class="n">kt</span><span class="o">.</span><span class="n">filterdata</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">,</span>
+            <span class="k">lambda</span> <span class="n">person</span><span class="p">:</span> <span class="n">kt</span><span class="o">.</span><span class="n">selectors</span><span class="o">.</span><span class="n">bydept</span><span class="p">(</span><span class="n">person</span><span class="p">,</span><span class="n">kt</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">NORTH_CAMPUS_DEPTS</span><span class="p">)</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+<p>The following are the available selectors:</p>
+<span class="target" id="module-knack_tools.selectors"></span><p>selectors.py
+v0.1</p>
+<p>Selector functions meant to be used for filtering knack data.</p>
+<dl class="function">
+<dt id="knack_tools.selectors.allactives">
+<code class="descclassname">knack_tools.selectors.</code><code class="descname">allactives</code><span class="sig-paren">(</span><em>person</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools/selectors.html#allactives"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.selectors.allactives" title="Permalink to this definition">¶</a></dt>
+<dd><p>If person is currently in the bargaining unit, pass the data.
+Otherwise return None.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.selectors.bydegree">
+<code class="descclassname">knack_tools.selectors.</code><code class="descname">bydegree</code><span class="sig-paren">(</span><em>person</em>, <em>degree_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools/selectors.html#bydegree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.selectors.bydegree" title="Permalink to this definition">¶</a></dt>
+<dd><p>If person is in one of the listed degrees, pass the data.
+Otherwise return None.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.selectors.bydept">
+<code class="descclassname">knack_tools.selectors.</code><code class="descname">bydept</code><span class="sig-paren">(</span><em>person</em>, <em>dept_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools/selectors.html#bydept"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.selectors.bydept" title="Permalink to this definition">¶</a></dt>
+<dd><p>If person is in one of the listed depts, pass the data.
+Otherwise return None.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.selectors.citizen">
+<code class="descclassname">knack_tools.selectors.</code><code class="descname">citizen</code><span class="sig-paren">(</span><em>person</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools/selectors.html#citizen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.selectors.citizen" title="Permalink to this definition">¶</a></dt>
+<dd><p>If person is a citizen, pass the data.
+Otherwise return None.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.selectors.hiredafter">
+<code class="descclassname">knack_tools.selectors.</code><code class="descname">hiredafter</code><span class="sig-paren">(</span><em>person</em>, <em>hiredate</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools/selectors.html#hiredafter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.selectors.hiredafter" title="Permalink to this definition">¶</a></dt>
+<dd><p>If person was hired after ‘hiredate’, pass the data.
+Otherwise return None.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.selectors.hiredbefore">
+<code class="descclassname">knack_tools.selectors.</code><code class="descname">hiredbefore</code><span class="sig-paren">(</span><em>person</em>, <em>hiredate</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools/selectors.html#hiredbefore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.selectors.hiredbefore" title="Permalink to this definition">¶</a></dt>
+<dd><p>If person was hired after ‘hiredate’, pass the data.
+Otherwise return None.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.selectors.itnl">
+<code class="descclassname">knack_tools.selectors.</code><code class="descname">itnl</code><span class="sig-paren">(</span><em>person</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools/selectors.html#itnl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.selectors.itnl" title="Permalink to this definition">¶</a></dt>
+<dd><p>If person is an international student, pass the data.
+Otherwise return None.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.selectors.nohiredate">
+<code class="descclassname">knack_tools.selectors.</code><code class="descname">nohiredate</code><span class="sig-paren">(</span><em>person</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools/selectors.html#nohiredate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.selectors.nohiredate" title="Permalink to this definition">¶</a></dt>
+<dd><p>If person doesn’t have a hire date, pass the data.
+Otherwise return None.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.selectors.permres">
+<code class="descclassname">knack_tools.selectors.</code><code class="descname">permres</code><span class="sig-paren">(</span><em>person</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools/selectors.html#permres"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.selectors.permres" title="Permalink to this definition">¶</a></dt>
+<dd><p>If person is a permanent resident, pass the data.
+Otherwise return None.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="the-knack-tools-constants-module">
+<h2>The knack_tools.constants Module<a class="headerlink" href="#the-knack-tools-constants-module" title="Permalink to this headline">¶</a></h2>
+<p>This module contains information specific to Umich’s data (such as department names).</p>
+<span class="target" id="module-knack_tools.constants"></span><p>constants.py</p>
+<p>A collection of helpful constants for umich’s knack.</p>
+<dl class="docutils">
+<dt>NOTE: If the department name in knack has changed or if new departments</dt>
+<dd>are added, these lists must be updated.</dd>
+</dl>
+<dl class="data">
+<dt id="knack_tools.constants.ALL_DEPTS">
+<code class="descclassname">knack_tools.constants.</code><code class="descname">ALL_DEPTS</code><em class="property"> = set(['COE - Aerospace', 'COE - Biomedical', 'COE -...</em><a class="headerlink" href="#knack_tools.constants.ALL_DEPTS" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of all departments</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="knack_tools.constants.DEPT_TO_DEPTCODES">
+<code class="descclassname">knack_tools.constants.</code><code class="descname">DEPT_TO_DEPTCODES</code><em class="property"> = {'': [''], 'COE - Aerospace': ['AEROSP'], 'COE - B...</em><a class="headerlink" href="#knack_tools.constants.DEPT_TO_DEPTCODES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary mapping each department (as it is seen in knack) to umich’s
+department code.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="knack_tools.constants.ENGINEERING_DEPTS">
+<code class="descclassname">knack_tools.constants.</code><code class="descname">ENGINEERING_DEPTS</code><em class="property"> = set(['COE - Aerospace', 'COE - Biomedical', 'COE -...</em><a class="headerlink" href="#knack_tools.constants.ENGINEERING_DEPTS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set of all Engineering departments</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="knack_tools.constants.MASTERS">
+<code class="descclassname">knack_tools.constants.</code><code class="descname">MASTERS</code><em class="property"> = set(['AMusD', 'DNP', 'MA', 'MAcc', 'MArch', 'MBA',...</em><a class="headerlink" href="#knack_tools.constants.MASTERS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set of all possible Master’s programs</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="knack_tools.constants.NORTH_CAMPUS_DEPTS">
+<code class="descclassname">knack_tools.constants.</code><code class="descname">NORTH_CAMPUS_DEPTS</code><em class="property"> = set(['COE - Aerospace', 'COE - Biomedical', 'COE -...</em><a class="headerlink" href="#knack_tools.constants.NORTH_CAMPUS_DEPTS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set of all North Campus departments</p>
+</dd></dl>
+
+</div>
+<div class="section" id="file-i-o">
+<h2>File I/O<a class="headerlink" href="#file-i-o" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="knack_tools.importcsv">
+<code class="descclassname">knack_tools.</code><code class="descname">importcsv</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#importcsv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.importcsv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read in raw data from csv file and parse into a dictionary.</p>
+<dl class="docutils">
+<dt>The dictionary is structured as: </dt>
+<dd>{“umid”: {“column_name”: “column_data”}}. So, each element</dd>
+</dl>
+<p>in the dictionary is all of the data for the person with this umid.
+The data is a dictionary where each element is a different column.
+So, getting a person’s membership status would look like:</p>
+<blockquote>
+<div>data[“93048579”][“Membership Status”]</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.importrosched">
+<code class="descclassname">knack_tools.</code><code class="descname">importrosched</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#importrosched"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.importrosched" title="Permalink to this definition">¶</a></dt>
+<dd><p>Import class schedule data from Registrar’s Office.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.importstews">
+<code class="descclassname">knack_tools.</code><code class="descname">importstews</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#importstews"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.importstews" title="Permalink to this definition">¶</a></dt>
+<dd><p>Import raw data from Stewards’ list</p>
+<p>To get the stews list, go to the “Stewards’” group in Knack
+and export the whole list.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.writecsv_byid">
+<code class="descclassname">knack_tools.</code><code class="descname">writecsv_byid</code><span class="sig-paren">(</span><em>data_to_write</em>, <em>export_header</em>, <em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#writecsv_byid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.writecsv_byid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes any parsed Knack data and exports it to “filename” as csv.</p>
+<dl class="docutils">
+<dt>“export_header” is a list of which columns should be exported.</dt>
+<dd><ol class="first last arabic simple">
+<li>if export_header == None:         do nothing.</li>
+<li>if export_header == “all fields”: write all data in data_to_write.</li>
+<li><dl class="first docutils">
+<dt>otherwise:                        write only columns with the</dt>
+<dd>names specified in 
+“export_header”</dd>
+</dl>
+</li>
+</ol>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="knack_tools.writecsv_summary">
+<code class="descclassname">knack_tools.</code><code class="descname">writecsv_summary</code><span class="sig-paren">(</span><em>data_to_write</em>, <em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/knack_tools.html#writecsv_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#knack_tools.writecsv_summary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, John Bell
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

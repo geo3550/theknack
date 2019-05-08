@@ -46,12 +46,16 @@ from constants import *
 
 
 def count_duespayers(data):
+    """Takes parsed Knack data and returns the number of dues payers in said \
+    data."""
     ii = 0
     for p in data.values():
         if p['Member Status'] == 'Union Dues': ii += 1
     return ii
 
 def count_nonpayers(data):
+    """Takes parsed Knack data and returns the number of non-dues payers in \
+    said data."""
     ii = 0
     for p in data:
         if p['Member Status'] == 'Non-Payer': ii += 1
@@ -336,7 +340,8 @@ def writecsv_summary(data_to_write, filename):
 ###############################################################################
 
 class GuiIO(Frame):
-    """Creates Simple GUI to import, process, and export Knack data.""" 
+    """[depreciated] \
+    Creates Simple GUI to import, process, and export Knack data.""" 
     def __init__(   self, processing_fn, export_header, 
                     out_filename='./out.csv', master=None   ):
         Frame.__init__(self, master)
@@ -384,7 +389,9 @@ class GuiIO(Frame):
 
 
 class AutomaticIO():
-    """Imports, processes, and exports Knack data from given file.""" 
+    """[depreciated] \
+    Automatically imports, processes, and exports Knack data from given \
+    file (no GUI).""" 
     class m:
         """Dummy class to make the interface similar to GuiIO"""
         def title(self,txt): pass
@@ -418,7 +425,7 @@ class AutomaticIO():
 ###############################################################################
 
 class ScriptingWindow(Frame):
-    """Builds out what you see on the screen."""
+    """This is the object that creates and maintains the main GUI."""
 
     def __init__(self, available_scripts, title='Knack Scripts', master=None):
         self.avail_scripts = available_scripts

@@ -1,4 +1,6 @@
-knack\_tools package
+.. _ktref:
+
+knack\_tools Package
 ====================
 
 Submodules
