@@ -80,6 +80,6 @@ def processing_function(data):
         tracker -= 1
         time.sleep(.01)
 
-    kt.writecsv_summary(errors, ERROR_FILE)
+    kt.writecsv_summary(errors, OUT_FILE)
 
     return newdata
